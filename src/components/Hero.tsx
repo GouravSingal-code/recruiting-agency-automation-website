@@ -47,21 +47,15 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* YouTube video embed */}
+        {/* Demo video */}
         <div className="rounded-t-2xl overflow-hidden border border-white/10 border-b-0 shadow-[0_0_100px_rgba(37,99,235,0.15),0_32px_64px_rgba(0,0,0,0.7)]">
-          <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-            <iframe
-              src="https://www.youtube.com/embed/CJozTW0Nhso?autoplay=0&rel=0&modestbranding=1"
-              title="Shortlisted.ai — Automated Hiring Pipeline Demo"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              style={{
-                position: 'absolute', inset: 0,
-                width: '100%', height: '100%',
-                border: 'none',
-              }}
-            />
-          </div>
+          <video
+            src="/shortlistedai.mp4"
+            controls
+            playsInline
+            className="w-full block"
+            style={{ display: 'block' }}
+          />
 
           {/* Caption bar */}
           <div className="flex items-center justify-end px-5 py-3 border-t border-white/7 bg-white/[0.025]">
