@@ -1,82 +1,92 @@
-const comparisonRows = [
-  { factor: "Recruiting Expertise", freelancers: "None", diy: "None", generic: "Minimal", us: "Deep" },
-  { factor: "Price", freelancers: "$200-5k", diy: "Free + time", generic: "$15k-100k", us: "$3.5k-25k" },
-  { factor: "Delivery Speed", freelancers: "1-5 days", diy: "Weeks/months", generic: "4-12 weeks", us: "1-6 weeks" },
-  { factor: "Ongoing Support", freelancers: "Rarely", diy: "You're alone", generic: "Expensive", us: "$1.5-3k/mo" },
-  { factor: "Error Handling", freelancers: "Minimal", diy: "None", generic: "Good", us: "Built-in" },
-  { factor: "Understands ATS", freelancers: "No", diy: "Surface-level", generic: "Maybe", us: "API-deep" },
-  { factor: "Documentation", freelancers: "No", diy: "No", generic: "Yes", us: "Yes" },
-  { factor: "Training", freelancers: "No", diy: "N/A", generic: "Yes", us: "Yes" },
-];
-
-const differentiators = [
+const steps = [
   {
-    title: "We ONLY Work With Recruiting Agencies",
-    description:
-      "Not a generalist. We understand placements, submittals, time-to-fill, split fees, VMS, MSP — not just Zapier.",
+    step: "01",
+    title: "Share your job description",
+    description: "Just send us the role. That's all we need to start.",
   },
   {
-    title: "Software Engineer + Recruiting Expert",
-    description:
-      "Unlike Zapier consultants, we write custom code (Python, Node.js) when no-code tools hit their limits.",
+    step: "02",
+    title: "We build the search",
+    description: "We turn your JD into a precision LinkedIn search — automatically pulling every signal that matters.",
   },
   {
-    title: "Prove ROI Before You Commit",
-    description:
-      "Start with a $3,500 Quick Win (1 week). See results before investing $15-25k in full automation.",
+    step: "03",
+    title: "Hundreds of profiles surface",
+    description: "The search runs. We pull the most relevant candidates from LinkedIn and other sources instantly.",
+  },
+  {
+    step: "04",
+    title: "AI filters the list",
+    description: "Every profile goes through our filters. Only the strongest candidates make the cut — the rest are dropped.",
+  },
+  {
+    step: "05",
+    title: "We reach out to each one",
+    description: "Personalised messages go out to every shortlisted candidate on LinkedIn and email — automatically.",
+  },
+  {
+    step: "06",
+    title: "Every resume is scored",
+    description: "We score each resume against your JD. The best matches rise to the top so you always see them first.",
+  },
+  {
+    step: "07",
+    title: "We send scheduling links",
+    description: "Top candidates get a link to book their slot. They pick the time. It lands straight in your calendar.",
+  },
+  {
+    step: "08",
+    title: "AI runs the intro call",
+    description: "Our AI conducts a live intro call with each candidate — assessing their fit, motivation, and availability before they ever reach you.",
+  },
+  {
+    step: "09",
+    title: "You get a ready shortlist",
+    description: "A shortlist of screened, scored, interviewed, and scheduled candidates — ready for your main interviews. Nothing else to do.",
   },
 ];
 
 export default function WhyUs() {
   return (
-    <section id="why-us" className="border-y border-card-border bg-card-bg/30 py-20 md:py-28">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="text-center">
+    <section id="how-it-works" className="border-y border-card-border bg-card-bg/30 py-20 md:py-28">
+      <div className="mx-auto max-w-4xl px-6">
+        <div className="text-center mb-14">
+          <p className="text-xs font-bold tracking-[2.5px] uppercase text-accent-blue mb-3">
+            How It Works
+          </p>
           <h2 className="text-3xl font-bold text-white md:text-4xl">
-            Why Recruiting Agencies Choose Us Over Freelancers, DIY&nbsp;Zapier, and Generic Agencies
+            You tell us who you need.<br />We do everything else.
           </h2>
+          <p className="mx-auto mt-4 max-w-lg text-muted text-base">
+            From sourcing to scheduling — we handle the entire process and hand you candidates ready to interview.
+          </p>
         </div>
 
-        {/* Comparison table */}
-        <div className="mt-12 overflow-x-auto rounded-xl border border-card-border">
-          <table className="w-full min-w-[600px]">
-            <thead>
-              <tr className="border-b border-card-border bg-card-bg">
-                <th className="px-4 py-3 text-left text-sm font-semibold text-white">Factor</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-muted">Freelancers</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-muted">DIY Zapier</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-muted">Generic Agencies</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-accent-blue">Us</th>
-              </tr>
-            </thead>
-            <tbody>
-              {comparisonRows.map((row, i) => (
-                <tr
-                  key={row.factor}
-                  className={`border-b border-card-border/50 ${i % 2 === 0 ? "bg-background" : "bg-card-bg/30"}`}
-                >
-                  <td className="px-4 py-3 text-sm font-medium text-foreground">{row.factor}</td>
-                  <td className="px-4 py-3 text-center text-sm text-muted">{row.freelancers}</td>
-                  <td className="px-4 py-3 text-center text-sm text-muted">{row.diy}</td>
-                  <td className="px-4 py-3 text-center text-sm text-muted">{row.generic}</td>
-                  <td className="px-4 py-3 text-center text-sm font-semibold text-accent-green">{row.us}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <div className="relative">
+          {/* Vertical line */}
+          <div className="absolute left-6 top-0 bottom-0 w-px bg-card-border hidden md:block" />
 
-        {/* Differentiators */}
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {differentiators.map((diff, i) => (
-            <div key={diff.title} className="rounded-xl border border-card-border bg-background p-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent-blue/10 text-lg font-bold text-accent-blue">
-                {i + 1}
+          <div className="space-y-3">
+            {steps.map((s) => (
+              <div
+                key={s.step}
+                className="relative flex items-start gap-5 rounded-xl border border-card-border bg-background px-6 py-5 transition-all hover:border-accent-blue/30 md:ml-12"
+              >
+                {/* Step dot on the line */}
+                <div className="absolute -left-[2.85rem] top-1/2 -translate-y-1/2 hidden md:flex h-5 w-5 items-center justify-center rounded-full bg-accent-blue/20 border border-accent-blue/40">
+                  <div className="h-2 w-2 rounded-full bg-accent-blue" />
+                </div>
+
+                <span className="flex-shrink-0 text-xs font-bold tracking-widest text-accent-blue pt-0.5 w-8">
+                  {s.step}
+                </span>
+                <div>
+                  <h3 className="text-base font-semibold text-white">{s.title}</h3>
+                  <p className="mt-1 text-sm text-muted leading-relaxed">{s.description}</p>
+                </div>
               </div>
-              <h3 className="mt-4 text-lg font-semibold text-white">{diff.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{diff.description}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>

@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Recruiting Agency Automation Services | Save 15-25 Hours/Week Per Recruiter",
+  title: "Shortlisted.ai — We Source, Screen & Deliver Interview-Ready Candidates",
   description:
-    "We automate recruiting agency workflows — candidate sourcing, ATS integration, submittals, and reporting. Built exclusively for staffing agencies. Free audit available.",
+    "Tell us who you need. We source, screen, and deliver interview-ready candidates for any company, any industry, any role. Shortlisted.ai",
   keywords:
     "recruiting agency automation, staffing agency workflow automation, ATS integration services, Bullhorn automation, candidate sourcing automation, recruiter productivity",
   openGraph: {

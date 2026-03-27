@@ -1,46 +1,56 @@
-const services = [
+const plans = [
   {
-    tier: "Free",
-    name: "Recruiting Automation Audit",
+    name: "Starter",
+    tagline: "Try it on one role",
     description:
-      "30-minute call to map your recruiting workflow and identify 2-3 automation opportunities with estimated time savings.",
-    price: "Free",
-    details: "30 Minutes · No Obligation",
-    cta: "Book Your Audit",
-    href: "#cta",
+      "Give us one open role. We source, screen, and deliver 5–8 interview-ready candidates. See the quality before committing to more.",
+    price: "$1,500",
+    basis: "per role",
+    delivery: "12–14 business days",
+    includes: [
+      "1 active role at a time",
+      "5–8 shortlisted candidates",
+      "Screened & ranked by fit",
+      "Scheduling links sent",
+      "Interview brief per candidate",
+    ],
+    cta: "Start with One Role",
     highlight: false,
   },
   {
-    tier: "Quick Win",
-    name: "Automate Your #1 Pain Point",
+    name: "Growth",
+    tagline: "For teams hiring regularly",
     description:
-      "Candidate sourcing, submittal generation, or interview scheduling — pick your biggest time-waster and we'll automate it.",
+      "Up to 5 active roles at a time, running in parallel. Consistent pipeline of interview-ready candidates every month.",
     price: "$3,500",
-    details: "1 Week Delivery · 2 Weeks Support",
-    cta: "Start with a Quick Win",
-    href: "#cta",
-    highlight: false,
-  },
-  {
-    tier: "Full Workflow",
-    name: "End-to-End Recruiting Automation",
-    description:
-      "Sourcing → Screening → Submittal → Placement → Reporting. Your entire recruitment pipeline, automated across all your tools.",
-    price: "$15k-$25k",
-    details: "4-6 Weeks · 30 Days Support",
-    cta: "Discuss Your Project",
-    href: "#cta",
+    basis: "per month",
+    delivery: "Ongoing · 5–8 candidates per role",
+    includes: [
+      "Up to 5 active roles/month",
+      "25–40 shortlisted candidates",
+      "Priority turnaround",
+      "Dedicated account manager",
+      "Weekly pipeline report",
+    ],
+    cta: "Get Started",
     highlight: true,
   },
   {
-    tier: "Ongoing",
-    name: "Optimization & Support",
+    name: "Scale",
+    tagline: "High-volume or niche hiring",
     description:
-      "We monitor, maintain, and improve your automations as you scale. New integrations, performance optimization, priority support.",
-    price: "$1.5-3k/mo",
-    details: "10-15 hrs/month",
-    cta: "Add Ongoing Support",
-    href: "#cta",
+      "Unlimited roles, custom sourcing strategies for hard-to-fill or specialist positions. Pricing based on your hiring volume.",
+    price: "Custom",
+    basis: "talk to us",
+    delivery: "Tailored to your pipeline",
+    includes: [
+      "Unlimited active roles",
+      "Specialist & niche sourcing",
+      "Custom screening criteria",
+      "Direct Slack / Teams access",
+      "SLA-backed delivery",
+    ],
+    cta: "Talk to Us",
     highlight: false,
   },
 ];
@@ -50,56 +60,83 @@ export default function Services() {
     <section id="services" className="py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center">
+          <p className="text-xs font-bold tracking-[2.5px] uppercase text-accent-blue mb-3">
+            Pricing
+          </p>
           <h2 className="text-3xl font-bold text-white md:text-4xl">
-            Recruiting Automation Services — From Quick Wins to Full Workflow
+            One service. Priced by how much you hire.
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-muted">
-            Four ways to work together, depending on where you are.
+          <p className="mx-auto mt-4 max-w-xl text-muted">
+            You tell us who you need. We deliver interview-ready candidates. Pick the plan that matches your hiring volume.
           </p>
         </div>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {services.map((service) => (
+        <div className="mt-14 grid gap-6 lg:grid-cols-3">
+          {plans.map((plan) => (
             <div
-              key={service.name}
-              className={`group relative flex flex-col rounded-xl border p-6 transition-all ${
-                service.highlight
-                  ? "border-accent-blue bg-accent-blue/5 shadow-lg shadow-accent-blue/10"
+              key={plan.name}
+              className={`group relative flex flex-col rounded-2xl border p-8 transition-all ${
+                plan.highlight
+                  ? "border-accent-blue bg-accent-blue/5 shadow-xl shadow-accent-blue/10"
                   : "border-card-border bg-card-bg hover:border-accent-blue/30"
               }`}
             >
-              {service.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent-blue px-3 py-0.5 text-xs font-semibold text-white">
+              {plan.highlight && (
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-accent-blue px-4 py-1 text-xs font-semibold text-white whitespace-nowrap">
                   Most Popular
                 </div>
               )}
 
-              <div className="text-xs font-medium uppercase tracking-wider text-accent-blue">
-                {service.tier}
+              {/* Plan name + tagline */}
+              <div className="mb-6">
+                <div className="text-xs font-bold uppercase tracking-widest text-accent-blue mb-1">
+                  {plan.name}
+                </div>
+                <h3 className="text-xl font-bold text-white">{plan.tagline}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{plan.description}</p>
               </div>
-              <h3 className="mt-2 text-lg font-semibold text-white">{service.name}</h3>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-muted">
-                {service.description}
-              </p>
 
-              <div className="mt-6">
-                <div className="text-2xl font-bold text-white">{service.price}</div>
-                <div className="mt-1 text-xs text-muted">{service.details}</div>
+              {/* Price */}
+              <div className="mb-6 pb-6 border-b border-card-border">
+                <div className="flex items-end gap-2">
+                  <span className="text-4xl font-bold text-white">{plan.price}</span>
+                  <span className="text-sm text-muted mb-1">{plan.basis}</span>
+                </div>
+                <div className="mt-1 text-xs text-muted">{plan.delivery}</div>
               </div>
+
+              {/* Includes */}
+              <ul className="flex-1 space-y-3 mb-8">
+                {plan.includes.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-muted">
+                    <span className="mt-0.5 text-accent-green flex-shrink-0">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
 
               <a
-                href={service.href}
-                className={`mt-6 block rounded-lg py-3 text-center text-sm font-semibold transition-colors ${
-                  service.highlight
+                href="#cta"
+                className={`block rounded-xl py-3.5 text-center text-sm font-semibold transition-colors ${
+                  plan.highlight
                     ? "bg-accent-blue text-white hover:bg-accent-blue/90"
                     : "border border-card-border text-foreground hover:border-accent-blue/50 hover:text-accent-blue"
                 }`}
               >
-                {service.cta}
+                {plan.cta}
               </a>
             </div>
           ))}
         </div>
+
+        {/* Bottom note */}
+        <p className="mt-10 text-center text-sm text-muted">
+          Not sure which plan fits?{" "}
+          <a href="#cta" className="text-accent-blue underline underline-offset-2 hover:text-accent-blue/80">
+            Book a free 30-min call
+          </a>{" "}
+          and we&apos;ll tell you exactly what you need.
+        </p>
       </div>
     </section>
   );

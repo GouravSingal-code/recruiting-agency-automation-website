@@ -1,9 +1,7 @@
 const footerLinks = [
   { label: "Services", href: "#services" },
   { label: "Why Us", href: "#why-us" },
-  { label: "ROI Calculator", href: "#roi-calculator" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Book Free Audit", href: "#cta" },
+  { label: "Get Started", href: "#cta" },
 ];
 
 export default function Footer() {
@@ -13,12 +11,10 @@ export default function Footer() {
         <div className="flex flex-col items-center gap-8 md:flex-row md:justify-between">
           <div>
             <a href="#" className="text-xl font-bold text-foreground">
-              Recruit<span className="text-accent-blue">Auto</span>
+              Shortlisted<span className="text-accent-blue">.ai</span>
             </a>
             <p className="mt-2 max-w-sm text-sm text-muted">
-              We help recruiting agencies automate candidate sourcing, ATS
-              workflows, and client submittals — saving 15-25 hours/week per
-              recruiter.
+              We source, screen, and deliver interview-ready candidates for companies of all sizes — any industry, any role.
             </p>
           </div>
 
@@ -37,21 +33,16 @@ export default function Footer() {
 
         <div className="mt-8 flex flex-col items-center gap-4 border-t border-card-border pt-8 md:flex-row md:justify-between">
           <div className="flex items-center gap-4 text-sm text-muted">
-            <a href="mailto:hello@yourdomain.com" className="hover:text-foreground">
-              hello@yourdomain.com
+            <a href="https://calendly.com/YOUR_LINK" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
+              Contact Us
             </a>
             <span>·</span>
-            <a href="#cta" className="hover:text-foreground">
-              Calendly
-            </a>
-            <span>·</span>
-            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
+            <a href="https://linkedin.com/in/YOUR_PROFILE" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
               LinkedIn
             </a>
           </div>
-
           <div className="text-xs text-muted">
-            © {new Date().getFullYear()} RecruitAuto. All rights reserved.
+            © {new Date().getFullYear()} Shortlisted.ai. All rights reserved.
           </div>
         </div>
       </div>

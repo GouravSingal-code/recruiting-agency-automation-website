@@ -3,12 +3,9 @@
 import { useState } from "react";
 
 const navLinks = [
-  { href: "#problem", label: "Problem" },
-  { href: "#services", label: "Services" },
-  { href: "#why-us", label: "Why Us" },
-  { href: "#roi-calculator", label: "ROI Calculator" },
-  { href: "#demos", label: "Demo Projects" },
-  { href: "#faq", label: "FAQ" },
+  { href: "#problem", label: "What We Solve" },
+  { href: "#how-it-works", label: "How It Works" },
+  { href: "#services", label: "Pricing" },
 ];
 
 export default function Navbar() {
@@ -17,8 +14,9 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-card-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <a href="#" className="text-xl font-bold text-foreground">
-          Recruit<span className="text-accent-blue">Auto</span>
+        <a href="#" className="flex flex-col leading-none">
+          <span className="text-xl font-bold text-foreground">Shortlisted<span className="text-accent-blue">.ai</span></span>
+          <span className="text-[10px] text-muted font-medium tracking-wide">Interview-ready candidates, delivered</span>
         </a>
 
         {/* Desktop */}
@@ -33,10 +31,12 @@ export default function Navbar() {
             </a>
           ))}
           <a
-            href="#cta"
+            href="https://calendly.com/YOUR_LINK"
+            target="_blank"
+            rel="noopener noreferrer"
             className="rounded-lg bg-accent-blue px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-blue/90"
           >
-            Book Free Audit
+            Contact Us
           </a>
         </div>
 

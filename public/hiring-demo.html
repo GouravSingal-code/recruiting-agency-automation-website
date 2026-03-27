@@ -1,0 +1,2269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shortlisted.ai — Hiring Pipeline Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #000;
+  font-family: 'Inter', sans-serif;
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+#stage-wrapper {
+  width: 100vw; height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+#stage {
+  width: 1280px; height: 720px;
+  position: relative;
+  background: #07070f;
+  overflow: hidden;
+  transform-origin: center center;
+}
+.grid-bg {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(79,142,247,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79,142,247,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+.scene {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+.scene.active { opacity: 1; pointer-events: all; }
+
+#progress-bar {
+  display: none;
+}
+#subtitle {
+  display: none;
+}
+#scene-counter {
+  display: none;
+}
+#autostart-overlay {
+  display: none;
+  position: absolute; inset: 0;
+  background: rgba(7,7,15,0.92);
+  z-index: 9999;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px;
+  cursor: pointer;
+}
+#autostart-overlay .play-circle {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: #3B82F6;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 0 rgba(59,130,246,0.5);
+  animation: pulse-ring 1.6s ease-out infinite;
+}
+#autostart-overlay .play-circle svg { margin-left: 6px; }
+#autostart-overlay p {
+  color: #fff; font-family: 'Inter', sans-serif;
+  font-size: 18px; font-weight: 600; margin: 0;
+}
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(59,130,246,0.55); }
+  70%  { box-shadow: 0 0 0 22px rgba(59,130,246,0); }
+  100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+}
+#controls {
+  display: none;
+}
+#controls button {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff; padding: 5px 13px;
+  border-radius: 6px; cursor: pointer;
+  font-size: 11px; font-family: 'Inter', sans-serif;
+  transition: background 0.2s;
+}
+#controls button:hover { background: rgba(255,255,255,0.18); }
+
+/* Keyframes */
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes fadeUp  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes slideR  { from{opacity:0;transform:translateX(28px)} to{opacity:1;transform:translateX(0)} }
+@keyframes slideL  { from{opacity:0;transform:translateX(-28px)} to{opacity:1;transform:translateX(0)} }
+@keyframes scaleIn { from{opacity:0;transform:scaleX(0)} to{opacity:1;transform:scaleX(1)} }
+@keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes ringPulse { 0%,100%{transform:scale(1);opacity:0.25} 50%{transform:scale(1.12);opacity:0.55} }
+@keyframes logoIn  { from{opacity:0;transform:scale(0.88);filter:blur(12px)} to{opacity:1;transform:scale(1);filter:blur(0)} }
+@keyframes wave    { 0%,100%{height:6px} 50%{height:var(--wh,20px)} }
+@keyframes glowPulse { 0%,100%{box-shadow:0 0 8px rgba(16,185,129,0.4)} 50%{box-shadow:0 0 22px rgba(16,185,129,0.9)} }
+@keyframes typingCursor { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.scene-step  { display: none; }
+.scene-title { display: none; }
+
+/* Scene 0 */
+.glow-ring {
+  position: absolute; width: 420px; height: 420px;
+  border-radius: 50%; border: 1px solid rgba(79,142,247,0.25);
+  animation: ringPulse 2.5s ease-in-out infinite;
+}
+.glow-ring-2 {
+  position: absolute; width: 280px; height: 280px;
+  border-radius: 50%; border: 1px solid rgba(124,58,237,0.2);
+  animation: ringPulse 2.5s ease-in-out infinite 0.8s;
+}
+.logo-text {
+  font-size: 76px; font-weight: 800; color: #fff;
+  letter-spacing: -3px;
+  text-shadow: 0 0 60px rgba(79,142,247,0.9), 0 0 120px rgba(79,142,247,0.4);
+  animation: logoIn 1.4s ease forwards 0.4s; opacity: 0; position: relative;
+}
+.logo-tagline {
+  font-size: 17px; color: rgba(255,255,255,0.4);
+  margin-top: 14px; font-weight: 300; letter-spacing: 1px;
+  animation: fadeIn 1s ease forwards 1.6s; opacity: 0; position: relative;
+}
+
+/* Scene 3 — profile cards */
+.profiles-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; width: 840px; }
+.profile-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 13px 15px;
+  opacity: 0; animation: slideR 0.4s ease forwards;
+  display: flex; align-items: center; gap: 11px;
+}
+.avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.pname  { color: #fff; font-size: 13px; font-weight: 600; }
+.ptitle { color: rgba(255,255,255,0.38); font-size: 11px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+.mscore { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: rgba(16,185,129,0.15); color: #34d399; flex-shrink: 0; margin-left: auto; }
+
+/* Resume bars */
+.resume-row { display: flex; gap: 16px; width: 900px; align-items: flex-end; }
+.resume-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.resume-bar-bg {
+  width: 36px; height: 200px;
+  background: rgba(255,255,255,0.04); border-radius: 6px;
+  position: relative; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.resume-bar-fill { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 4px; height: 0; transition: height 0.8s ease; }
+.resume-bar-label { font-size: 10px; color: rgba(255,255,255,0.3); }
+.resume-bar-score { font-size: 11px; font-weight: 700; }
+.threshold-line { position: absolute; left: 0; right: 0; height: 1px; background: rgba(239,68,68,0.5); }
+
+/* Call scene */
+.call-wrap { width: 680px; }
+.call-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.call-live { display: flex; align-items: center; gap: 8px; color: #10b981; font-size: 13px; font-weight: 500; }
+.rec-dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; animation: pulse 1s ease infinite; }
+.call-timer { color: rgba(255,255,255,0.3); font-size: 12px; }
+.waveform { display: flex; align-items: center; gap: 3px; height: 44px; margin-bottom: 18px; background: rgba(255,255,255,0.03); border-radius: 8px; padding: 0 12px; }
+.wbar { width: 3px; border-radius: 2px; background: linear-gradient(to top, #4f8ef7, #7c3aed); animation: wave 0.7s ease-in-out infinite; }
+.tline { display: flex; gap: 12px; margin-bottom: 11px; opacity: 0; animation: fadeUp 0.4s ease forwards; }
+.tspeaker { font-size: 11px; font-weight: 700; color: #4f8ef7; white-space: nowrap; min-width: 42px; }
+.ttext { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.55; }
+.score-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 14px; padding: 5px 12px; border-radius: 20px;
+  background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3);
+  color: #34d399; font-size: 12px; font-weight: 600;
+  opacity: 0; animation: fadeIn 0.5s ease forwards;
+}
+
+/* Shortlist */
+.shortlist-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; width: 780px; }
+.sl-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(79,142,247,0.18);
+  border-radius: 12px; padding: 20px;
+  opacity: 0; animation: fadeUp 0.5s ease forwards;
+}
+.sl-name { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+.sl-role { font-size: 12px; color: rgba(255,255,255,0.38); margin-bottom: 14px; }
+.sl-metrics { display: flex; gap: 10px; }
+.sl-metric { flex: 1; background: rgba(255,255,255,0.04); border-radius: 8px; padding: 9px 6px; text-align: center; }
+.sl-val { font-size: 20px; font-weight: 700; color: #4f8ef7; }
+.sl-lbl { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+
+/* CTA */
+.cta-title {
+  font-size: 46px; font-weight: 800; text-align: center; line-height: 1.18;
+  background: linear-gradient(135deg, #fff 0%, #a78bfa 60%, #4f8ef7 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  animation: fadeUp 0.7s ease forwards 0.2s; opacity: 0; position: relative;
+}
+.cta-sub {
+  font-size: 17px; color: rgba(255,255,255,0.38); margin-top: 14px; font-weight: 300;
+  animation: fadeUp 0.7s ease forwards 0.5s; opacity: 0; position: relative;
+}
+.cta-btn {
+  margin-top: 34px; padding: 14px 38px;
+  background: linear-gradient(135deg, #4f8ef7, #7c3aed);
+  border: none; border-radius: 8px; color: #fff;
+  font-size: 16px; font-weight: 600; cursor: pointer; position: relative;
+  animation: fadeUp 0.7s ease forwards 0.8s; opacity: 0;
+  box-shadow: 0 0 40px rgba(79,142,247,0.35);
+}
+
+/* Mock cursor */
+.mock-cursor {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: rgba(20,20,30,0.85); border: 2px solid rgba(255,255,255,0.88);
+  position: absolute; pointer-events: none; z-index: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  transition: left 0.55s cubic-bezier(0.25,0.46,0.45,0.94),
+              top  0.55s cubic-bezier(0.25,0.46,0.45,0.94),
+              transform 0.1s ease;
+}
+.mock-cursor.click { transform: scale(0.58); }
+
+/* Canvas */
+#hfunnel-canvas-4, #hfunnel-canvas-10 { display: block; border-radius: 10px; }
+
+/* Tag chips */
+.tag {
+  padding: 4px 11px; border-radius: 20px;
+  font-size: 12px; font-weight: 500;
+  opacity: 0; animation: fadeIn 0.3s ease forwards;
+}
+.tag.blue   { background: rgba(79,142,247,0.15); color: #6fa8ff; border: 1px solid rgba(79,142,247,0.35); }
+.tag.purple { background: rgba(124,58,237,0.15); color: #b48aff; border: 1px solid rgba(124,58,237,0.35); }
+.tag.cyan   { background: rgba(6,182,212,0.15);  color: #3dd5f0; border: 1px solid rgba(6,182,212,0.35); }
+.tag.green  { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.35); }
+</style>
+</head>
+<body>
+<div id="stage-wrapper">
+<div id="stage">
+  <div class="grid-bg"></div>
+  <div id="progress-bar"></div>
+  <div id="subtitle"></div>
+  <div id="scene-counter"></div>
+
+  <div id="autostart-overlay" onclick="initAudio(); this.style.display='none';">
+    <div class="play-circle">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+        <polygon points="12,8 28,18 12,28" fill="white"/>
+      </svg>
+    </div>
+    <p>Click to start with audio</p>
+  </div>
+
+  <div id="controls">
+    <button onclick="prevScene()">Prev</button>
+    <button onclick="togglePlay()" id="play-btn">Pause</button>
+    <button onclick="nextScene()">Next</button>
+    <button onclick="restartDemo()">Restart</button>
+    <button onclick="toggleMute()" id="mute-btn">Mute</button>
+  </div>
+
+  <!-- Scene 0: Intro -->
+  <div class="scene active" id="scene-0" style="flex-direction:column;align-items:center;justify-content:center;gap:0;">
+    <div class="glow-ring"></div>
+    <div class="glow-ring-2"></div>
+    <div class="logo-text" style="animation:logoIn 0.8s ease both;">Shortlisted.ai</div>
+    <div class="logo-tagline" style="animation:fadeUp 0.6s ease 0.7s both;">Tell us who you need. We deliver.</div>
+
+  </div>
+
+  <!-- Scene 1: JD Upload -->
+  <div class="scene" id="scene-1" style="padding:0;">
+    <div id="s1-stage" style="width:1280px;height:720px;position:relative;overflow:hidden;"></div>
+  </div>
+
+  <!-- Scene 2: LinkedIn URL Builder -->
+  <div class="scene" id="scene-2" style="padding:0;">
+    <div id="s2-stage" style="width:1280px;height:720px;position:relative;overflow:hidden;font-family:'Inter',sans-serif;background:#F3F2EF;"></div>
+  </div>
+
+  <!-- Scene 3: Candidate Discovery -->
+  <div class="scene" id="scene-3" style="padding:0;">
+    <div id="s3-stage" style="width:1280px;height:720px;position:relative;overflow:hidden;font-family:'Inter',sans-serif;background:#F3F2EF;"></div>
+  </div>
+
+  <!-- Scene 4: Horizontal Funnel 1 -->
+  <div class="scene" id="scene-4">
+    <div class="scene-step" style="animation-delay:0s">Step 4 — Smart Filter Pipeline</div>
+    <canvas id="hfunnel-canvas-4"></canvas>
+  </div>
+
+  <!-- Scene 5: LinkedIn Messaging -->
+  <div class="scene" id="scene-5" style="padding:0;">
+    <div id="s5-stage" style="width:1280px;height:720px;position:relative;overflow:hidden;font-family:'Inter',sans-serif;background:#F3F2EF;"></div>
+  </div>
+
+  <!-- Scene 7: Resume Scoring + Filter (combined) -->
+  <div class="scene" id="scene-7" style="padding:0;">
+    <div id="s7-stage" style="width:1280px;height:720px;position:relative;overflow:hidden;font-family:'Inter',sans-serif;background:#07070f;"></div>
+  </div>
+
+  <!-- Scene 8: Calendar Scheduling -->
+  <div class="scene" id="scene-8" style="padding:0;">
+    <div id="s8-stage" style="width:1280px;height:720px;position:relative;overflow:hidden;font-family:'Inter',sans-serif;background:#F3F2EF;"></div>
+  </div>
+
+  <!-- Scene 9: AI Intro Call -->
+  <div class="scene" id="scene-9">
+    <div class="scene-step">Step 9</div>
+    <div class="scene-title">AI-Led Intro Call</div>
+    <div class="call-wrap">
+      <div class="call-header">
+        <div class="call-live"><span class="rec-dot"></span> Live Call — Round 1: Introduction</div>
+        <div class="call-timer" id="call-timer-9">0:00</div>
+      </div>
+      <div class="waveform" id="waveform-9"></div>
+      <div id="transcript-9"></div>
+    </div>
+  </div>
+
+  <!-- Scene 11: Final Shortlist -->
+  <div class="scene" id="scene-11" style="flex-direction:column;align-items:center;justify-content:center;gap:0;">
+    <div id="s11-card-wrap" style="opacity:0;transform:translateY(16px);transition:opacity 0.5s ease,transform 0.5s ease;"></div>
+    <div id="s11-msg" style="opacity:0;transform:translateY(10px);transition:opacity 0.55s ease,transform 0.55s ease;margin-top:28px;text-align:center;"></div>
+  </div>
+
+  <!-- Scene 12: CTA -->
+  <div class="scene" id="scene-12">
+    <div class="glow-ring"></div>
+    <div class="glow-ring-2"></div>
+    <div class="cta-title">From JD to Shortlist.<br>Fully Automated.</div>
+    <div class="cta-sub">End-to-end hiring in hours, not weeks.</div>
+    <button class="cta-btn">Book Your Demo</button>
+  </div>
+</div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════════════════════════
+// AUDIO ENGINE
+// ════════════════════════════════════════════════════════════════════
+const SFX = {
+  ctx: null, master: null, comp: null, bgGain: null, bgOscs: [],
+  muted: false, lastRejectMs: 0,
+
+  _init() {
+    if (this.ctx) return;
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // Compressor so bass doesn't clip
+    this.comp = this.ctx.createDynamicsCompressor();
+    this.comp.threshold.value = -14; this.comp.ratio.value = 4;
+    this.comp.connect(this.ctx.destination);
+    this.master = this.ctx.createGain();
+    this.master.gain.value = 0.42;
+    this.master.connect(this.comp);
+  },
+
+  note(freq, dur, type = 'sine', vol = 0.22, delay = 0) {
+    if (!this.ctx || this.muted) return;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = type; o.frequency.value = freq;
+    const t = this.ctx.currentTime;
+    g.gain.setValueAtTime(0, t + delay);
+    g.gain.linearRampToValueAtTime(vol, t + delay + 0.022);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + delay + dur);
+    o.connect(g); g.connect(this.master);
+    o.start(t + delay); o.stop(t + delay + dur + 0.1);
+  },
+
+  // Deep sub-bass thump
+  _bass(freq = 65, dur = 0.55) {
+    if (!this.ctx || this.muted) return;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    const t = this.ctx.currentTime;
+    g.gain.setValueAtTime(0.55, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(this.master);
+    o.start(t); o.stop(t + dur + 0.05);
+  },
+
+  // Rising noise whoosh — the "sexy" transition sweep
+  _whoosh(vol = 0.09, dur = 0.45) {
+    if (!this.ctx || this.muted) return;
+    try {
+      const sr  = this.ctx.sampleRate;
+      const buf = this.ctx.createBuffer(1, Math.ceil(sr * dur), sr);
+      const d   = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      const src = this.ctx.createBufferSource();
+      src.buffer = buf;
+      const bpf = this.ctx.createBiquadFilter();
+      bpf.type = 'bandpass'; bpf.Q.value = 0.7;
+      bpf.frequency.setValueAtTime(600, this.ctx.currentTime);
+      bpf.frequency.exponentialRampToValueAtTime(5500, this.ctx.currentTime + dur * 0.7);
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(vol, this.ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
+      src.connect(bpf); bpf.connect(g); g.connect(this.master);
+      src.start(); src.stop(this.ctx.currentTime + dur);
+    } catch(e) {}
+  },
+
+  stopBg() {
+    if (this.bgGain && this.ctx) {
+      this.bgGain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.6);
+    }
+    this.bgOscs.forEach(o => { try { o.stop(this.ctx.currentTime + 0.7); } catch(e){} });
+    this.bgOscs = [];
+  },
+
+  _pad(freqs, dur, vol = 0.055) {
+    if (!this.ctx || this.muted) return;
+    this.bgGain = this.ctx.createGain();
+    const t = this.ctx.currentTime;
+    this.bgGain.gain.setValueAtTime(0, t);
+    this.bgGain.gain.linearRampToValueAtTime(vol, t + 1.2);
+    this.bgGain.gain.setValueAtTime(vol, t + dur - 1.2);
+    this.bgGain.gain.linearRampToValueAtTime(0, t + dur);
+    this.bgGain.connect(this.master);
+    freqs.forEach((f, idx) => {
+      const o    = this.ctx.createOscillator();
+      const filt = this.ctx.createBiquadFilter();
+      filt.type = 'lowpass'; filt.frequency.value = 700;
+      o.type = 'triangle'; o.frequency.value = f;
+      o.detune.value = (Math.random() - 0.5) * 8;
+      o.connect(filt); filt.connect(this.bgGain);
+      o.start(t); o.stop(t + dur + 0.2);
+      this.bgOscs.push(o);
+    });
+  },
+
+  // Scene transition: subtle soft ping only
+  playScene(id) {
+    if (!this.ctx) return;
+    this.stopBg();
+  },
+
+  reject() {
+    const now = Date.now();
+    if (now - this.lastRejectMs < 85) return;
+    this.lastRejectMs = now;
+    if (!this.ctx || this.muted) return;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(210, this.ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(85, this.ctx.currentTime + 0.22);
+    g.gain.setValueAtTime(0.13, this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.22);
+    o.connect(g); g.connect(this.master);
+    o.start(); o.stop(this.ctx.currentTime + 0.28);
+  },
+
+  accept() {
+    if (!this.ctx || this.muted) return;
+    this.note(783.99, 0.15, 'sine', 0.12);
+    this.note(987.77, 0.2,  'sine', 0.09, 0.08);
+    this.note(1174.7, 0.18, 'sine', 0.06, 0.16);
+  },
+
+  ping() {
+    this.note(1046.5, 0.14, 'sine', 0.22);
+    this.note(1318.5, 0.22, 'sine', 0.16, 0.1);
+  },
+
+  // Soft rising arpeggio
+  triumph() {
+    if (!this.ctx || this.muted) return;
+    [392.00, 523.25, 659.25, 783.99].forEach((f, i) =>
+      this.note(f, 0.28, 'sine', 0.07 - i * 0.01, i * 0.09));
+  },
+
+  profilePing(delay = 0) {
+    if (!this.ctx || this.muted) return;
+    const base = [783.99, 880, 987.77, 1046.5, 1108.7][Math.floor(Math.random() * 5)];
+    this.note(base,        0.14, 'sine', 0.10, delay);
+    this.note(base * 1.25, 0.10, 'sine', 0.05, delay + 0.06);
+  },
+
+  sendSound() {
+    if (!this.ctx || this.muted) return;
+    this.note(523.25, 0.18, 'sine', 0.09);
+    this.note(659.25, 0.22, 'sine', 0.07, 0.1);
+    this.note(783.99, 0.18, 'sine', 0.05, 0.2);
+  },
+
+  typingClick() {
+    if (!this.ctx || this.muted) return;
+    this.note(2200 + Math.random() * 600, 0.025, 'sine', 0.03);
+  },
+};
+
+let audioInited = false;
+function initAudio() {
+  if (audioInited) return;
+  SFX._init();
+  audioInited = true;
+  startNarration();
+  SFX.playScene(cur);
+  speakScene(cur);
+}
+document.getElementById('stage').addEventListener('click', () => {
+  document.getElementById('autostart-overlay').style.display = 'none';
+  initAudio();
+});
+document.addEventListener('keydown', () => {
+  document.getElementById('autostart-overlay').style.display = 'none';
+  initAudio();
+}, { once: true });
+
+// Show overlay immediately — browser requires a user gesture for both
+// AudioContext and speechSynthesis. One click starts everything.
+document.getElementById('autostart-overlay').style.display = 'flex';
+
+
+function toggleMute() {
+  SFX.muted = !SFX.muted;
+  document.getElementById('mute-btn').textContent = SFX.muted ? 'Unmute' : 'Mute';
+}
+
+// ════════════════════════════════════════════════════════════════════
+// SCENE CONFIG
+// ════════════════════════════════════════════════════════════════════
+const SCENES = [
+  { id:0,  dur:14500, vo:"We at Shortlisted.ai help you hire the right people, faster. Share who you're looking for, and we source, screen, and deliver shortlisted candidates — ready for interview." },
+  { id:1,  dur:12000, vo:"It starts with your job description — just share it with us." },
+  { id:2,  dur:4800,  vo:"Those signals become a precision LinkedIn search — built automatically." },
+  { id:3,  dur:6300,  vo:"The search runs. Hundreds of the most relevant profiles surface instantly." },
+  { id:4,  dur:7000,  vo:"Every profile flows through AI filters. Only the strongest candidates make the cut." },
+  { id:5,  dur:7000,  vo:"Personalised outreach goes out on LinkedIn and email — to every shortlisted candidate, automatically." },
+  { id:7,  dur:14000, vo:"Every resume is scored against your JD. Top matches rise to the top." },
+  { id:8,  dur:10000, vo:"Top candidates are shortlisted. We send them a scheduling link on LinkedIn and email — they pick their slot." },
+  { id:9,  dur:9000,  vo:"AI runs the intro call — assessing fit, motivation, and availability for each candidate." },
+  { id:11, dur:5500,  vo:"And finally — here is your shortlisted candidate, ready for the main interviews." },
+  { id:12, dur:3500,  vo:"From job description to shortlist. Fully automated. Book your demo today." },
+];
+const TOTAL = SCENES.reduce((s,x) => s + x.dur, 0);
+
+// ════════════════════════════════════════════════════════════════════
+// SETUP 1 — JD Upload (preserved exactly)
+// ════════════════════════════════════════════════════════════════════
+function setup1() {
+  const s1 = document.getElementById('scene-1');
+  s1.style.alignItems = 'stretch';
+  s1.style.justifyContent = 'flex-start';
+  const stage = document.getElementById('s1-stage');
+  const timers = [];
+  const T = (fn, d) => timers.push(setTimeout(fn, d));
+
+  function jdContent(hl) {
+    const h = (txt, bg, tc) => hl
+      ? `<span class="jd-hl" data-bg="${bg}" data-tc="${tc}" style="padding:1px 4px;border-radius:3px;">${txt}</span>`
+      : txt;
+    return `<div style="font-size:11.5px;line-height:1.62;color:#2D1F0E;font-family:Inter,sans-serif;">
+      <div style="margin-bottom:10px;">
+        <div style="font-size:15px;font-weight:800;color:#1A1208;letter-spacing:-0.3px;">Senior Machine Learning Engineer</div>
+        <div style="font-size:11px;color:#8B7355;margin-top:3px;">TechCorp AI · San Francisco, CA · ${h('Remote OK','#CCFBF1','#0f766e')} · $180K – $220K · Full-time</div>
+      </div>
+      <div style="border-top:1px solid #EDE5D8;margin-bottom:8px;"></div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#B09070;margin-bottom:4px;">About the Role</div>
+      <p style="color:#4A3520;margin-bottom:8px;">We are seeking a ${h('Senior','#FEF3C7','#92400e')} Machine Learning Engineer to join our growing AI team. You will lead the design and deployment of production-scale ML systems powering our core products.</p>
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#B09070;margin-bottom:4px;">Requirements</div>
+      <ul style="list-style:none;margin-bottom:8px;">
+        <li style="margin-bottom:2px;">· ${h('5+ years','#FEF3C7','#92400e')} of machine learning engineering experience</li>
+        <li style="margin-bottom:2px;">· Expert proficiency in ${h('Python','#DBEAFE','#1e40af')} and ${h('PyTorch','#DBEAFE','#1e40af')}</li>
+        <li style="margin-bottom:2px;">· Strong understanding of ${h('MLOps','#EDE9FE','#5b21b6')} and CI/CD pipelines</li>
+        <li style="margin-bottom:2px;">· Experience with ${h('LLMs','#D1FAE5','#065f46')} and transformer models</li>
+        <li style="margin-bottom:2px;">· ${h('AWS','#EDE9FE','#5b21b6')} cloud infrastructure and deployment</li>
+        <li style="margin-bottom:2px;">· ${h('Docker','#EDE9FE','#5b21b6')} and ${h('Kubernetes','#EDE9FE','#5b21b6')} proficiency</li>
+        <li style="margin-bottom:2px;">· ${h('CUDA','#EDE9FE','#5b21b6')} and GPU optimisation knowledge</li>
+        <li style="margin-bottom:2px;">· ${h('Senior Level','#FEF3C7','#92400e')} or ${h('Team Lead','#FEF3C7','#92400e')} experience</li>
+        <li style="margin-bottom:2px;">· ${h('MS','#FCE7F3','#9d174d')} or ${h('PhD','#FCE7F3','#9d174d')} in Computer Science preferred</li>
+      </ul>
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#B09070;margin-bottom:4px;">Responsibilities</div>
+      <ul style="list-style:none;">
+        <li style="margin-bottom:2px;">· Design, train, and optimise large-scale ML models</li>
+        <li style="margin-bottom:2px;">· Build robust production ${h('ML pipelines','#D1FAE5','#065f46')}</li>
+        <li style="margin-bottom:2px;">· Collaborate with product and data science teams</li>
+        <li style="margin-bottom:2px;">· Mentor junior engineers and define best practices</li>
+        <li style="margin-bottom:2px;">· Evaluate and adopt new ML research and techniques</li>
+      </ul>
+    </div>`;
+  }
+
+  stage.innerHTML = `
+    <div style="height:100%;display:flex;flex-direction:column;font-family:Inter,sans-serif;background:#07070f;">
+      <nav style="background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.08);padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+        <div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.5px;">Shortlisted.ai</div>
+        <div style="display:flex;gap:28px;align-items:center;">
+          <span style="font-size:13px;color:rgba(255,255,255,0.45);font-weight:500;">Features</span>
+          <span style="font-size:13px;color:rgba(255,255,255,0.45);font-weight:500;">Pricing</span>
+          <span style="font-size:13px;color:rgba(255,255,255,0.45);font-weight:500;">About</span>
+          <button style="background:linear-gradient(135deg,#4f8ef7,#7c3aed);color:#fff;border:none;padding:9px 22px;border-radius:8px;font-size:13px;font-weight:600;box-shadow:0 2px 12px rgba(79,142,247,0.35);">Sign In</button>
+        </div>
+      </nav>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+        <div style="text-align:center;max-width:540px;">
+          <h1 style="font-size:34px;font-weight:800;color:#fff;line-height:1.18;margin-bottom:12px;">Upload your<br>Job Description</h1>
+          <p style="color:rgba(255,255,255,0.45);font-size:14px;margin-bottom:32px;line-height:1.6;">Our AI parses it instantly and extracts every hiring signal — skills, experience, seniority, and more.</p>
+          <div id="upload-zone" style="background:rgba(255,255,255,0.04);border:2px dashed rgba(79,142,247,0.4);border-radius:18px;padding:38px 48px;text-align:center;cursor:pointer;box-shadow:0 4px 30px rgba(79,142,247,0.08);">
+            <div style="font-size:42px;margin-bottom:14px;">📤</div>
+            <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:6px;">Drag &amp; drop your JD here</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.3);margin-bottom:22px;">— or —</div>
+            <button id="browse-btn" style="background:linear-gradient(135deg,#4f8ef7,#7c3aed);color:#fff;border:none;padding:12px 30px;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 3px 16px rgba(79,142,247,0.4);letter-spacing:0.2px;">Browse Files</button>
+            <div style="margin-top:16px;font-size:11.5px;color:rgba(255,255,255,0.25);">Supports PDF, DOC, DOCX · Max 10MB</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="mc" class="mock-cursor" style="left:120px;top:420px;"></div>
+  `;
+
+  T(() => {
+    const mc = document.getElementById('mc'), btn = document.getElementById('browse-btn');
+    if (!mc || !btn) return;
+    const sr = stage.getBoundingClientRect(), br = btn.getBoundingClientRect();
+    const sc = sr.width / 1280;
+    mc.style.left = ((br.left - sr.left) / sc + br.width / sc / 2 - 8) + 'px';
+    mc.style.top  = ((br.top  - sr.top)  / sc + br.height / sc / 2 - 8) + 'px';
+  }, 800);
+
+  T(() => { const b = document.getElementById('browse-btn'); if (b) b.style.transform = 'scale(1.05)'; }, 1450);
+
+  T(() => {
+    const mc = document.getElementById('mc'), b = document.getElementById('browse-btn');
+    if (mc) mc.classList.add('click');
+    if (b) { b.style.transform = 'scale(0.93)'; b.style.boxShadow = '0 1px 4px rgba(45,91,227,0.2)'; }
+    if (audioInited) SFX.note(700, 0.06, 'sine', 0.12);
+  }, 1700);
+  T(() => { const mc = document.getElementById('mc'); if (mc) mc.classList.remove('click'); }, 1840);
+
+  T(() => {
+    const ov = document.createElement('div');
+    ov.id = 'file-ov';
+    ov.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;z-index:200;font-family:Inter,sans-serif;';
+    ov.innerHTML = `
+      <div style="background:#13131f;border-radius:14px;width:450px;box-shadow:0 28px 80px rgba(0,0,0,0.7);overflow:hidden;animation:fadeIn 0.22s ease;border:1px solid rgba(255,255,255,0.08);">
+        <div style="background:#0a0a18;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;gap:7px;">
+            <div style="width:12px;height:12px;background:#E8665A;border-radius:50%;"></div>
+            <div style="width:12px;height:12px;background:#F5C842;border-radius:50%;"></div>
+            <div style="width:12px;height:12px;background:#57C954;border-radius:50%;"></div>
+          </div>
+          <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);">Open</span>
+          <span style="width:60px;"></span>
+        </div>
+        <div style="display:flex;height:230px;">
+          <div style="width:125px;background:#0a0a18;padding:10px 0;border-right:1px solid rgba(255,255,255,0.07);font-size:12px;">
+            ${['☁️ iCloud','🕐 Recents','🖥 Desktop','📁 Documents','⬇️ Downloads'].map((f,i) => `<div style="padding:7px 14px;color:${i===3?'#6fa8ff':'rgba(255,255,255,0.45)'};background:${i===3?'rgba(79,142,247,0.15)':'transparent'};font-weight:${i===3?'600':'400'};">${f}</div>`).join('')}
+          </div>
+          <div style="flex:1;padding:10px 12px;overflow-y:auto;background:#13131f;">
+            ${[{n:'Senior_ML_Engineer.pdf',s:true},{n:'Backend_Developer_JD.pdf',s:false},{n:'Frontend_Lead_JD.pdf',s:false},{n:'Product_Manager_JD.pdf',s:false},{n:'DevOps_Engineer_JD.pdf',s:false}]
+              .map(f=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;background:${f.s?'rgba(79,142,247,0.2)':'transparent'};margin-bottom:3px;">
+                <span style="font-size:16px;">📄</span>
+                <span style="font-size:12px;font-weight:${f.s?'600':'400'};color:${f.s?'#6fa8ff':'rgba(255,255,255,0.55)'};">${f.n}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+        <div style="padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.07);background:#0a0a18;">
+          <span style="font-size:11px;color:rgba(255,255,255,0.35);">Senior_ML_Engineer.pdf</span>
+          <div style="display:flex;gap:8px;">
+            <button style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);padding:7px 18px;border-radius:7px;font-size:12px;color:rgba(255,255,255,0.55);cursor:pointer;">Cancel</button>
+            <button id="open-btn" style="background:linear-gradient(135deg,#4f8ef7,#7c3aed);color:#fff;border:none;padding:7px 18px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(79,142,247,0.4);">Open</button>
+          </div>
+        </div>
+      </div>`;
+    stage.appendChild(ov);
+
+    T(() => {
+      const mc = document.getElementById('mc'), btn = document.getElementById('open-btn');
+      if (!mc || !btn) return;
+      const sr = stage.getBoundingClientRect(), br = btn.getBoundingClientRect();
+      const sc = sr.width / 1280;
+      mc.style.zIndex = '300';
+      mc.style.left = ((br.left - sr.left) / sc + br.width / sc / 2 - 8) + 'px';
+      mc.style.top  = ((br.top  - sr.top)  / sc + br.height / sc / 2 - 8) + 'px';
+    }, 550);
+
+    T(() => {
+      const mc = document.getElementById('mc'), b = document.getElementById('open-btn');
+      if (mc) mc.classList.add('click');
+      if (b) b.style.transform = 'scale(0.9)';
+      if (audioInited) SFX.note(880, 0.06, 'sine', 0.12);
+    }, 1150);
+
+    T(() => {
+      const mc = document.getElementById('mc');
+      if (mc) { mc.classList.remove('click'); mc.style.display = 'none'; }
+      document.getElementById('file-ov')?.remove();
+      const uz = document.getElementById('upload-zone');
+      if (!uz) return;
+      uz.style.borderColor = 'rgba(79,142,247,0.6)';
+      uz.style.background = 'rgba(79,142,247,0.06)';
+      uz.innerHTML = `
+        <div style="font-size:32px;margin-bottom:10px;">📄</div>
+        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;">Senior_ML_Engineer.pdf</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:18px;">2.4 MB</div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:10px;height:9px;overflow:hidden;margin:0 24px 10px;">
+          <div id="pf" style="height:100%;background:linear-gradient(90deg,#4f8ef7,#7c3aed);border-radius:10px;width:0%;transition:width 1.4s ease;"></div>
+        </div>
+        <div id="pl" style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:500;">0%</div>`;
+      setTimeout(() => {
+        const pf = document.getElementById('pf');
+        if (pf) pf.style.width = '100%';
+        let p = 0;
+        const iv = setInterval(() => {
+          p = Math.min(p + 3, 100);
+          const pl = document.getElementById('pl');
+          if (pl) pl.textContent = p < 100 ? p + '%' : '✓ Parsing with AI...';
+          if (p >= 100) clearInterval(iv);
+        }, 42);
+        timers.push(iv);
+      }, 60);
+    }, 1400);
+  }, 1900);
+
+  T(() => {
+    if (audioInited) _showSubtitle("Our AI instantly reads it — extracting every skill, seniority level, and requirement.");
+    stage.innerHTML = `
+      <div style="height:100%;display:flex;flex-direction:column;font-family:Inter,sans-serif;background:#07070f;">
+        <div style="background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.08);padding:0 28px;height:48px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+          <div style="font-size:16px;font-weight:800;color:#fff;letter-spacing:-0.3px;">Shortlisted.ai</div>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <span style="background:rgba(16,185,129,0.15);color:#34d399;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid rgba(16,185,129,0.3);">✓ JD Parsed</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.35);">Senior_ML_Engineer.pdf</span>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;overflow:hidden;padding:20px 28px;gap:20px;">
+          <div style="flex:1;background:#fff;border-radius:10px;overflow:hidden;padding:18px 22px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);" id="lp">
+            <div style="font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#C4975A;margin-bottom:14px;display:flex;align-items:center;gap:6px;">📄 Original Document</div>
+            ${jdContent(false)}
+            <div id="scan-bar" style="position:absolute;left:0;right:0;top:48px;height:3px;background:linear-gradient(90deg,transparent,rgba(45,91,227,0.65),transparent);pointer-events:none;transition:top 3.2s linear;z-index:10;"></div>
+          </div>
+          <div style="flex:1;background:#fff;border-radius:10px;overflow:hidden;padding:18px 22px;box-shadow:0 24px 80px rgba(0,0,0,0.6);" id="rp">
+            <div style="font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#C4975A;margin-bottom:14px;display:flex;align-items:center;gap:6px;">📄 AI-Parsed Highlights</div>
+            ${jdContent(true)}
+          </div>
+        </div>
+      </div>`;
+
+    T(() => {
+      const lp = document.getElementById('lp'), sb = document.getElementById('scan-bar');
+      if (sb && lp) sb.style.top = (lp.scrollHeight + 10) + 'px';
+    }, 100);
+
+    T(() => {
+      const spans = document.querySelectorAll('#rp .jd-hl');
+      spans.forEach((sp, i) => {
+        T(() => {
+          sp.style.background = sp.dataset.bg;
+          sp.style.color = sp.dataset.tc;
+          sp.style.fontWeight = '700';
+          sp.style.transition = 'background 0.28s, color 0.28s';
+          if (audioInited) SFX.profilePing();
+        }, i * 140);
+      });
+    }, 500);
+  }, 5000);
+
+  return () => {
+    const s = document.getElementById('scene-1');
+    if (s) { s.style.alignItems = ''; s.style.justifyContent = ''; }
+    timers.forEach(t => { try { clearTimeout(t); clearInterval(t); } catch(e){} });
+  };
+}
+
+// ════════════════════════════════════════════════════════════════════
+// SETUP 2 — LinkedIn Search Results
+// ════════════════════════════════════════════════════════════════════
+function setup2() {
+  const stage = document.getElementById('s2-stage');
+  const timers = [];
+  const T = (fn, d) => timers.push(setTimeout(fn, d));
+
+  const chips = [
+    { label:'Senior ML Engineer', bg:'#FEF3C7', tc:'#92400e', param:'keywords=Senior+ML+Engineer',       icon:'🔤' },
+    { label:'Python · PyTorch',   bg:'#DBEAFE', tc:'#1e40af', param:'skills=Python%2CPyTorch',           icon:'⚡' },
+    { label:'5+ years exp',       bg:'#FEF3C7', tc:'#92400e', param:'experience=4%2C5',                  icon:'📅' },
+    { label:'Remote / On-site',   bg:'#CCFBF1', tc:'#0f766e', param:'geoUrn=103644278',                  icon:'📍' },
+    { label:'MLOps · LLMs',       bg:'#EDE9FE', tc:'#5b21b6', param:'titleFreeText=Machine+Learning',    icon:'🤖' },
+    { label:'Senior Level',       bg:'#FEF3C7', tc:'#92400e', param:'industry=96',                       icon:'⭐' },
+  ];
+
+  const paramLabels = [
+    { key: 'keywords',      display: '"Senior ML Engineer"' },
+    { key: 'skills',        display: '"Python, PyTorch"' },
+    { key: 'experience',    display: '"4–5 (Senior Level)"' },
+    { key: 'geoUrn',        display: '"Remote / On-site (US)"' },
+    { key: 'titleFreeText', display: '"Machine Learning"' },
+    { key: 'industry',      display: '"96 — Technology"' },
+  ];
+
+  stage.innerHTML = `
+    <div style="height:100%;display:flex;flex-direction:column;font-family:Inter,sans-serif;background:#F3F2EF;position:relative;overflow:hidden;">
+
+      <!-- LinkedIn Nav -->
+      <div style="background:#fff;border-bottom:1px solid #e0ddd8;height:52px;display:flex;align-items:center;padding:0 18px;gap:12px;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,0.08);">
+        <div style="background:#0A66C2;color:#fff;font-size:20px;font-weight:900;width:34px;height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;letter-spacing:-1.5px;flex-shrink:0;">in</div>
+        <div id="nav-search" style="background:#EEF3F8;border-radius:4px;padding:8px 14px;display:flex;align-items:center;gap:8px;width:260px;border:1px solid #ddd;transition:border-color 0.25s,background 0.25s;cursor:pointer;">
+          <span style="color:#888;font-size:13px;">🔍</span>
+          <span id="nav-search-txt" style="font-size:13px;color:#333;font-weight:500;">Senior ML Engineer</span>
+        </div>
+        <div style="flex:1;"></div>
+        <div style="display:flex;align-items:center;gap:2px;">
+          ${[['🏠','Home'],['👥','My Network'],['💼','Jobs'],['💬','Messaging'],['🔔','Notifications']].map(([ic,lb])=>`
+            <div style="display:flex;flex-direction:column;align-items:center;padding:4px 10px;cursor:pointer;min-width:52px;">
+              <span style="font-size:17px;">${ic}</span>
+              <span style="font-size:10px;color:#666;">${lb}</span>
+            </div>`).join('')}
+        </div>
+        <div style="width:1px;height:28px;background:#e0ddd8;margin:0 6px;"></div>
+        <span style="font-size:12px;color:#0A66C2;font-weight:600;white-space:nowrap;cursor:pointer;">For Business ▾</span>
+      </div>
+
+      <!-- Browser URL bar -->
+      <div style="background:#f4f4f4;border-bottom:1px solid #e0ddd8;padding:6px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;">
+        <div style="display:flex;gap:5px;">
+          <div style="width:10px;height:10px;background:#E8665A;border-radius:50%;"></div>
+          <div style="width:10px;height:10px;background:#F5C842;border-radius:50%;"></div>
+          <div style="width:10px;height:10px;background:#57C954;border-radius:50%;"></div>
+        </div>
+        <div style="display:flex;gap:5px;margin:0 2px;">
+          <button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;padding:0 3px;">‹</button>
+          <button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;padding:0 3px;">›</button>
+        </div>
+        <input readonly id="url-bar" style="flex:1;background:#fff;border:1px solid #ccc;border-radius:20px;padding:5px 14px;font-family:monospace;font-size:10.5px;color:#0A66C2;outline:none;cursor:default;white-space:nowrap;overflow:hidden;" value="https://www.linkedin.com/search/results/people/?">
+      </div>
+
+      <!-- Main body: two panels -->
+      <div style="flex:1;display:flex;overflow:hidden;gap:16px;padding:16px 20px;">
+
+        <!-- Left: JD Signals -->
+        <div style="flex:1;background:#fff;border-radius:10px;border:1px solid #e0ddd8;padding:20px 24px;display:flex;flex-direction:column;overflow:hidden;">
+          <div id="signals-list" style="display:flex;flex-direction:column;gap:10px;overflow:hidden;"></div>
+        </div>
+
+        <!-- Arrow -->
+        <div style="display:flex;align-items:center;justify-content:center;flex-shrink:0;width:40px;">
+          <div style="font-size:22px;color:#0A66C2;opacity:0.7;">→</div>
+        </div>
+
+        <!-- Right: URL Params -->
+        <div style="flex:1;background:#fff;border-radius:10px;border:1px solid #e0ddd8;padding:20px 24px;display:flex;flex-direction:column;overflow:hidden;">
+          <div id="params-list" style="display:flex;flex-direction:column;gap:8px;overflow:hidden;"></div>
+          <div style="flex:1;"></div>
+          <div id="launch-btn" style="display:none;margin-top:16px;background:linear-gradient(135deg,#0A66C2,#057642);color:#fff;border:none;border-radius:8px;padding:13px 24px;font-size:14px;font-weight:700;cursor:pointer;text-align:center;box-shadow:0 6px 24px rgba(10,102,194,0.45);letter-spacing:0.3px;transition:transform 0.15s,box-shadow 0.15s;">🔍  Search LinkedIn</div>
+        </div>
+      </div>
+
+      <div id="mc2" class="mock-cursor" style="left:300px;top:400px;display:none;"></div>
+    </div>
+  `;
+
+  const urlEl       = document.getElementById('url-bar');
+  const signalsList = document.getElementById('signals-list');
+  const paramsList  = document.getElementById('params-list');
+  let urlBuilt      = 'https://www.linkedin.com/search/results/people/?';
+
+  // Reveal mock cursor
+  T(() => { const mc = document.getElementById('mc2'); if (mc) mc.style.display = 'block'; }, 400);
+
+  chips.forEach((chip, i) => {
+    T(() => {
+      // Left panel: signal chip
+      if (signalsList) {
+        const chipEl = document.createElement('div');
+        chipEl.style.cssText = `display:flex;align-items:center;gap:10px;padding:10px 14px;background:${chip.bg};border-radius:8px;border:1px solid ${chip.tc}33;opacity:0;transition:opacity 0.35s;`;
+        chipEl.innerHTML = `
+          <span style="font-size:18px;flex-shrink:0;">${chip.icon}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:600;color:${chip.tc};">${chip.label}</div>
+            <div style="font-size:11px;color:#999;margin-top:2px;font-family:monospace;">${paramLabels[i].key}</div>
+          </div>
+          <div style="font-size:10px;color:#bbb;">→ param</div>`;
+        signalsList.appendChild(chipEl);
+        requestAnimationFrame(() => { chipEl.style.opacity = '1'; });
+      }
+
+      // Right panel: URL param row
+      if (paramsList) {
+        const paramEl = document.createElement('div');
+        paramEl.style.cssText = `display:flex;align-items:center;gap:6px;padding:8px 12px;background:#F8F9FA;border-radius:6px;border:1px solid #e8e8e8;opacity:0;transition:opacity 0.35s;`;
+        paramEl.innerHTML = `
+          <span style="font-family:monospace;font-size:12px;font-weight:700;color:#0A66C2;">${paramLabels[i].key}</span>
+          <span style="font-family:monospace;font-size:12px;color:#aaa;">=</span>
+          <span style="font-family:monospace;font-size:12px;color:#057642;">${paramLabels[i].display}</span>`;
+        paramsList.appendChild(paramEl);
+        requestAnimationFrame(() => { paramEl.style.opacity = '1'; });
+      }
+
+      // Update URL bar
+      if (urlEl) {
+        const sep = urlBuilt.endsWith('?') ? '' : '&';
+        urlBuilt += sep + chip.param;
+        urlEl.value = urlBuilt;
+        urlEl.scrollLeft = urlEl.scrollWidth;
+      }
+
+      if (audioInited) SFX.profilePing();
+    }, 300 + i * 380);
+  });
+
+  const LAUNCH_T = 300 + chips.length * 380 + 400;
+
+  // Show Launch button
+  T(() => {
+    const btn = document.getElementById('launch-btn');
+    if (btn) btn.style.display = 'block';
+    if (audioInited) SFX.triumph();
+  }, LAUNCH_T);
+
+  // Move cursor to the Search button and click it
+  T(() => {
+    const mc  = document.getElementById('mc2');
+    const btn = document.getElementById('launch-btn');
+    if (!mc || !btn) return;
+    mc.style.display = 'block';
+    const sr = document.getElementById('s2-stage').getBoundingClientRect();
+    const br = btn.getBoundingClientRect();
+    const sc = sr.width / 1280;
+    mc.style.left = ((br.left - sr.left) / sc + br.width / sc / 2 - 8) + 'px';
+    mc.style.top  = ((br.top  - sr.top)  / sc + br.height / sc / 2 - 8) + 'px';
+  }, LAUNCH_T + 500);
+
+  T(() => {
+    const mc  = document.getElementById('mc2');
+    const btn = document.getElementById('launch-btn');
+    if (mc) mc.classList.add('click');
+    if (btn) { btn.style.transform = 'scale(0.95)'; btn.style.boxShadow = '0 2px 8px rgba(10,102,194,0.3)'; }
+    if (audioInited) SFX.note(700, 0.08, 'sine', 0.14);
+  }, LAUNCH_T + 1000);
+
+  T(() => {
+    const mc  = document.getElementById('mc2');
+    const btn = document.getElementById('launch-btn');
+    const nst = document.getElementById('nav-search-txt');
+    if (mc) { mc.classList.remove('click'); mc.style.display = 'none'; }
+    if (btn) { btn.style.transform = ''; btn.textContent = '🔍  Searching LinkedIn…'; }
+    if (nst) nst.textContent = 'Searching…';
+  }, LAUNCH_T + 1200);
+
+  return () => {
+    timers.forEach(t => { try { clearTimeout(t); clearInterval(t); } catch(e){} });
+  };
+}
+
+// ════════════════════════════════════════════════════════════════════
+// SETUP 3 — Candidate Discovery (LinkedIn results)
+// ════════════════════════════════════════════════════════════════════
+function setup3() {
+  const stage = document.getElementById('s3-stage');
+  if (!stage) return;
+
+  const timers3 = [];
+  const T3 = (fn, d) => timers3.push(setTimeout(fn, d));
+
+  const people = [
+    { name:'Arjun Mehta',  headline:'Sr. Machine Learning Engineer at Google · Python, PyTorch, LLMs',         location:'San Francisco Bay Area', followers:'2,841', conn:'14', color:'#4f8ef7', init:'AM', badge:'Connect' },
+    { name:'Priya Sharma', headline:'AI Lead at Microsoft · Deep Learning, NLP, MLOps, Azure ML',              location:'Seattle, WA',            followers:'5,120', conn:'8',  color:'#7c3aed', init:'PS', badge:'Connect' },
+    { name:'Rohan Gupta',  headline:'Machine Learning Engineer at OpenAI · Reinforcement Learning, GPT',       location:'San Francisco, CA',      followers:'3,460', conn:'21', color:'#06b6d4', init:'RG', badge:'Connect' },
+    { name:'Sarah Chen',   headline:'MLOps Engineer at Meta · Kubernetes, TFX, Model Serving at Scale',        location:'Menlo Park, CA',         followers:'1,985', conn:'6',  color:'#10b981', init:'SC', badge:'Message' },
+    { name:'Alex Torres',  headline:'Senior Data Scientist at Uber · XGBoost, Spark, Real-time ML Pipelines',  location:'New York, NY',           followers:'4,230', conn:'11', color:'#f59e0b', init:'AT', badge:'Connect' },
+    { name:'Neha Patel',   headline:'ML Researcher at DeepMind · Generative Models, Vision Transformers',      location:'London, UK',             followers:'6,890', conn:'3',  color:'#ec4899', init:'NP', badge:'Connect' },
+  ];
+
+  const mutualColors = ['#4f8ef7','#7c3aed','#10b981','#f59e0b','#ec4899'];
+  function avatarStack() {
+    return [...Array(3)].map((_,j) =>
+      `<div style="width:18px;height:18px;border-radius:50%;background:${mutualColors[(j+2)%5]}55;border:2px solid #fff;margin-left:${j>0?'-6px':'0'};display:inline-block;flex-shrink:0;"></div>`
+    ).join('');
+  }
+
+  stage.innerHTML = `
+    <div style="height:100%;display:flex;flex-direction:column;font-family:Inter,sans-serif;background:#F3F2EF;position:relative;overflow:hidden;">
+
+      <!-- LinkedIn Nav -->
+      <div style="background:#fff;border-bottom:1px solid #e0ddd8;height:52px;display:flex;align-items:center;padding:0 18px;gap:12px;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,0.08);">
+        <div style="background:#0A66C2;color:#fff;font-size:20px;font-weight:900;width:34px;height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;letter-spacing:-1.5px;flex-shrink:0;">in</div>
+        <div style="background:#EEF3F8;border-radius:4px;padding:8px 14px;display:flex;align-items:center;gap:8px;width:260px;border:1px solid #ddd;">
+          <span style="color:#888;font-size:13px;">🔍</span>
+          <span style="font-size:13px;color:#333;font-weight:500;">Senior ML Engineer</span>
+        </div>
+        <div style="flex:1;"></div>
+        <div style="display:flex;align-items:center;gap:2px;">
+          ${[['🏠','Home'],['👥','My Network'],['💼','Jobs'],['💬','Messaging'],['🔔','Notifications']].map(([ic,lb])=>`
+            <div style="display:flex;flex-direction:column;align-items:center;padding:4px 10px;cursor:pointer;min-width:52px;">
+              <span style="font-size:17px;">${ic}</span>
+              <span style="font-size:10px;color:#666;">${lb}</span>
+            </div>`).join('')}
+        </div>
+        <div style="width:1px;height:28px;background:#e0ddd8;margin:0 6px;"></div>
+        <span style="font-size:12px;color:#0A66C2;font-weight:600;white-space:nowrap;cursor:pointer;">For Business ▾</span>
+      </div>
+
+      <!-- Browser URL bar -->
+      <div style="background:#f4f4f4;border-bottom:1px solid #e0ddd8;padding:6px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;">
+        <div style="display:flex;gap:5px;">
+          <div style="width:10px;height:10px;background:#E8665A;border-radius:50%;"></div>
+          <div style="width:10px;height:10px;background:#F5C842;border-radius:50%;"></div>
+          <div style="width:10px;height:10px;background:#57C954;border-radius:50%;"></div>
+        </div>
+        <div style="display:flex;gap:5px;margin:0 2px;">
+          <button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;padding:0 3px;">‹</button>
+          <button style="background:none;border:none;color:#aaa;font-size:15px;cursor:pointer;padding:0 3px;">›</button>
+        </div>
+        <div style="flex:1;background:#fff;border:1px solid #ccc;border-radius:20px;padding:5px 14px;font-family:monospace;font-size:10px;color:#0A66C2;overflow:hidden;white-space:nowrap;">https://www.linkedin.com/search/results/people/?keywords=Senior+ML+Engineer&amp;skills=Python%2CPyTorch&amp;experience=4%2C5&amp;geoUrn=103644278&amp;titleFreeText=Machine+Learning&amp;industry=96</div>
+      </div>
+
+      <!-- Filter pills -->
+      <div style="background:#fff;border-bottom:1px solid #e0ddd8;padding:8px 18px;display:flex;align-items:center;gap:7px;flex-shrink:0;flex-wrap:nowrap;overflow:hidden;">
+        <div style="background:#057642;color:#fff;border-radius:16px;padding:5px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">People ▾</div>
+        <div style="border:1px solid #aaa;border-radius:16px;padding:5px 11px;font-size:13px;color:#333;cursor:pointer;white-space:nowrap;">1st</div>
+        <div style="border:1px solid #aaa;border-radius:16px;padding:5px 11px;font-size:13px;color:#333;cursor:pointer;white-space:nowrap;">2nd</div>
+        <div style="border:1px solid #aaa;border-radius:16px;padding:5px 11px;font-size:13px;color:#333;cursor:pointer;white-space:nowrap;">3rd+</div>
+        <div style="border:1px solid #057642;border-radius:16px;padding:5px 11px;font-size:13px;color:#057642;background:rgba(5,118,66,0.06);cursor:pointer;white-space:nowrap;">🟢 Actively hiring ▾</div>
+        <div style="border:1px solid #0A66C2;border-radius:16px;padding:5px 11px;font-size:13px;color:#0A66C2;background:rgba(10,102,194,0.06);cursor:pointer;white-space:nowrap;">Locations ▾</div>
+        <div style="border:1px solid #aaa;border-radius:16px;padding:5px 11px;font-size:13px;color:#333;cursor:pointer;white-space:nowrap;">Current companies ▾</div>
+        <div style="font-size:13px;color:#333;font-weight:500;cursor:pointer;margin-left:4px;white-space:nowrap;">All filters</div>
+      </div>
+
+      <!-- Main body -->
+      <div style="flex:1;display:flex;overflow:hidden;gap:14px;padding:12px 18px;">
+
+        <!-- Results list -->
+        <div style="flex:1;background:#fff;border-radius:8px;border:1px solid #e0ddd8;overflow-y:auto;display:flex;flex-direction:column;">
+          <div style="padding:12px 20px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+            <span style="font-size:13px;color:#555;" id="s3-count">Searching...</span>
+            <span style="font-size:12px;color:#0A66C2;font-weight:600;cursor:pointer;">Sort by: Relevance ▾</span>
+          </div>
+          <div id="s3-results" style="display:flex;flex-direction:column;overflow:hidden;"></div>
+        </div>
+
+        <!-- Right sidebar -->
+        <div style="width:230px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;">
+          <div style="background:#fff;border:1px solid #e0ddd8;border-radius:8px;padding:14px;">
+            <div style="font-size:10px;color:#999;margin-bottom:8px;text-align:right;">Promoted ···</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+              <div style="width:44px;height:44px;background:linear-gradient(135deg,#4f8ef7,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px;flex-shrink:0;">TA</div>
+              <div>
+                <div style="font-size:13px;font-weight:700;color:#000;">Shortlisted.ai</div>
+                <div style="font-size:11px;color:#666;">AI-powered hiring</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:#444;line-height:1.5;margin-bottom:12px;">Hire 10× faster. Auto-source, screen &amp; shortlist engineers with AI.</div>
+            <button style="border:1px solid #0A66C2;color:#0A66C2;background:#fff;padding:6px 0;border-radius:16px;font-size:13px;font-weight:600;cursor:pointer;width:100%;">Follow</button>
+          </div>
+          <div style="background:#fff;border:1px solid #e0ddd8;border-radius:8px;padding:14px;">
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+              ${['About','Accessibility','Help Center','Privacy &amp; Terms','Ad Choices','Advertising','Business Services','Get the LinkedIn app','More'].map(t=>`<span style="font-size:10px;color:#666;cursor:pointer;">${t}</span>`).join('')}
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;margin-top:8px;">
+              <div style="background:#0A66C2;color:#fff;font-size:9px;font-weight:900;width:16px;height:16px;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">in</div>
+              <span style="font-size:10px;color:#0A66C2;font-weight:600;">LinkedIn Corporation © 2026</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="s3-toast" style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:#057642;color:#fff;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;opacity:0;transition:opacity 0.4s;z-index:400;box-shadow:0 4px 16px rgba(0,0,0,0.2);white-space:nowrap;">✓ ${people.length} candidates discovered — AI sourcing complete</div>
+    </div>
+  `;
+
+  // Brief "loading" overlay that fades out before cards appear
+  T3(() => {
+    const overlay = document.createElement('div');
+    overlay.id = 's3-loading';
+    overlay.style.cssText = 'position:absolute;inset:0;background:#F3F2EF;display:flex;align-items:center;justify-content:center;z-index:50;transition:opacity 0.5s;';
+    overlay.innerHTML = `
+      <div style="text-align:center;">
+        <div style="font-size:28px;margin-bottom:10px;animation:pulse 0.8s ease-in-out infinite;">🔍</div>
+        <div style="font-size:14px;font-weight:600;color:#333;">Searching LinkedIn…</div>
+        <div style="font-size:12px;color:#888;margin-top:4px;">Processing your search parameters</div>
+      </div>`;
+    stage.appendChild(overlay);
+    setTimeout(() => { overlay.style.opacity = '0'; }, 500);
+    setTimeout(() => { overlay.remove(); }, 1000);
+  }, 0);
+
+  const resultsList = document.getElementById('s3-results');
+  const countEl     = document.getElementById('s3-count');
+
+  function makeCard3(p) {
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:flex-start;gap:14px;padding:16px 20px;border-bottom:1px solid #f0f0f0;opacity:0;transition:opacity 0.4s;';
+    div.innerHTML = `
+      <div style="width:56px;height:56px;border-radius:50%;background:${p.color}22;border:2.5px solid ${p.color}88;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:${p.color};flex-shrink:0;">${p.init}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;font-weight:700;color:#000;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+          ${p.name}&nbsp;<span style="color:#0A66C2;font-size:13px;font-weight:400;">· 2nd</span>
+        </div>
+        <div style="font-size:12px;color:#555;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:460px;">${p.headline}</div>
+        <div style="font-size:12px;color:#777;margin-top:2px;">${p.location}</div>
+        <div style="font-size:12px;color:#666;margin-top:5px;">👥 ${p.followers} followers</div>
+        <div style="font-size:12px;color:#555;margin-top:4px;display:flex;align-items:center;gap:5px;">
+          <div style="display:flex;align-items:center;">${avatarStack()}</div>
+          <span>${p.conn} mutual connections</span>
+        </div>
+      </div>
+      <div style="flex-shrink:0;padding-top:2px;">
+        <button style="border:1px solid #0A66C2;color:#0A66C2;background:#fff;padding:6px 18px;border-radius:16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">${p.badge === 'Message' ? '✈ Message' : '＋ Connect'}</button>
+      </div>`;
+    return div;
+  }
+
+  people.forEach((p, i) => {
+    T3(() => {
+      if (countEl) countEl.textContent = `About ${(i + 1) * 34}+ results`;
+      if (resultsList) {
+        const card = makeCard3(p);
+        resultsList.appendChild(card);
+        requestAnimationFrame(() => { card.style.opacity = '1'; });
+      }
+      if (audioInited) SFX.profilePing();
+    }, 500 + i * 800);
+  });
+
+  T3(() => {
+    if (countEl) countEl.textContent = `Hundreds of relevant results found`;
+    const toast = document.getElementById('s3-toast');
+    if (toast) { toast.style.opacity = '1'; if (audioInited) SFX.triumph(); }
+  }, 500 + people.length * 800 + 300);
+
+  return () => timers3.forEach(t => { try { clearTimeout(t); } catch(e){} });
+}
+
+// ════════════════════════════════════════════════════════════════════
+// HORIZONTAL FUNNEL — reusable hFunnel(canvas, cfg)
+// ════════════════════════════════════════════════════════════════════
+function hFunnel(canvas, cfg) {
+  const W = canvas.width  = cfg.width  || 1100;
+  const H = canvas.height = cfg.height || 380;
+  const c = canvas.getContext('2d');
+  const cy = H / 2;
+
+  const pts   = cfg.pts;
+  const gates = cfg.gates;
+
+  function fhh(x) {
+    for (let i = 0; i < pts.length - 1; i++) {
+      if (x >= pts[i][0] && x <= pts[i+1][0]) {
+        const t = (x - pts[i][0]) / (pts[i+1][0] - pts[i][0]);
+        return pts[i][1] + (pts[i+1][1] - pts[i][1]) * t;
+      }
+    }
+    if (x < pts[0][0]) return pts[0][1];
+    return pts[pts.length-1][1];
+  }
+
+  const COLORS   = ['#4f8ef7','#7c3aed','#06b6d4','#10b981','#f59e0b','#ec4899','#8b5cf6','#14b8a6'];
+  const GRID_N   = 25;  // faces shown in left panel grid
+
+  const totalCount = cfg.leftPanel ? (cfg.leftPanel.count || 20) : 20;
+  const maxSpawn   = cfg.maxSpawn || 32;
+
+  // Track how many faces are still "waiting" in left panel
+  // (proportional: waiting / totalCount maps to grid slots)
+  let waiting     = totalCount;
+  let exitedCount = 0;
+
+  const particles = [];
+  let spawned = 0, frame = 0, rafId;
+
+  function spawn() {
+    const i = spawned++;
+    waiting = Math.max(0, waiting - Math.ceil(totalCount / maxSpawn));
+    const sx = cfg.funnelStartX !== undefined ? cfg.funnelStartX : pts[0][0];
+    const hh = fhh(sx);
+    particles.push({
+      x:     sx + 2,
+      y:     cy + (Math.random() - 0.5) * hh * 1.5,
+      vx:    1.0 + Math.random() * 1.0,
+      vy:    (Math.random() - 0.5) * 0.7,
+      r:     12,
+      color: COLORS[i % COLORS.length],
+      state: 'flowing',   // flowing → rejected | exited
+      alpha: 1,
+      gateIdx: 0,
+    });
+  }
+
+  function update() {
+    frame++;
+    if (spawned < maxSpawn && frame % 8 === 0) spawn();
+
+    particles.forEach(p => {
+      if (p.state === 'flowing') {
+        p.vx = Math.min(p.vx + 0.012, 4.0);
+        p.vy *= 0.97;
+        p.x  += p.vx;
+        p.y  += p.vy;
+
+        // Funnel wall constraint
+        const hh  = fhh(p.x);
+        const top = cy - hh + p.r, bot = cy + hh - p.r;
+        if (p.y < top) { p.y = top; p.vy =  Math.abs(p.vy) * 0.5 + 0.2; }
+        if (p.y > bot) { p.y = bot; p.vy = -(Math.abs(p.vy) * 0.5 + 0.2); }
+
+        // Gate check
+        if (p.gateIdx < gates.length) {
+          const g = gates[p.gateIdx];
+          if (p.x >= g.x) {
+            p.gateIdx++;
+            if (Math.random() > g.passProb) {
+              p.state = 'rejected';
+              if (audioInited) SFX.reject();
+            }
+          }
+        }
+
+        // Reached exit
+        const endX = cfg.funnelEndX !== undefined ? cfg.funnelEndX + 10 : W + 10;
+        if (p.x > endX) {
+          p.state = 'done';
+          exitedCount++;
+          if (audioInited) SFX.profilePing();
+        }
+
+      } else if (p.state === 'rejected') {
+        // Fade out cleanly in-place with a slight downward drift
+        p.y     += 1.2;
+        p.alpha -= 0.022;
+        if (p.alpha <= 0) { p.alpha = 0; p.state = 'dead'; }
+      }
+      // 'done' and 'dead' — no further movement
+    });
+  }
+
+  function drawFace(fx, fy, fr, fcolor, mode) {
+    const fc = mode === 'rejected' ? '#ef4444'
+             : mode === 'exited'   ? '#10b981'
+             :                       fcolor;
+    const fill = mode === 'rejected' ? 'rgba(239,68,68,0.15)'
+               : mode === 'exited'   ? 'rgba(16,185,129,0.18)'
+               :                       fcolor + '22';
+    c.beginPath(); c.arc(fx, fy, fr, 0, Math.PI * 2);
+    c.fillStyle   = fill;
+    c.strokeStyle = fc;
+    c.lineWidth   = mode === 'exited' ? 2 : 1.5;
+    c.fill(); c.stroke();
+    // Eyes
+    c.fillStyle = fc;
+    c.beginPath(); c.arc(fx - fr*0.27, fy - fr*0.14, fr*0.15, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.arc(fx + fr*0.27, fy - fr*0.14, fr*0.15, 0, Math.PI*2); c.fill();
+    // Mouth
+    c.beginPath();
+    if (mode === 'rejected') {
+      c.moveTo(fx - fr*0.22, fy + fr*0.08); c.lineTo(fx + fr*0.22, fy + fr*0.28);
+      c.moveTo(fx + fr*0.22, fy + fr*0.08); c.lineTo(fx - fr*0.22, fy + fr*0.28);
+      c.strokeStyle = fc; c.lineWidth = 1.2; c.stroke();
+    } else {
+      c.arc(fx, fy + fr*0.08, fr*0.24, 0.2, Math.PI - 0.2);
+      c.strokeStyle = fc; c.lineWidth = 1.3; c.stroke();
+    }
+  }
+
+  function draw() {
+    c.clearRect(0, 0, W, H);
+
+    // ── Left panel: grid of waiting faces (dims as faces enter funnel) ──
+    if (cfg.leftPanel) {
+      const funnelX  = cfg.funnelStartX || pts[0][0];
+      const lcols = 5, lfr = 9, lgap = 22;
+      const lrows = Math.ceil(GRID_N / lcols);
+      const lgridW = lcols * lgap;
+      const lgridH = lrows * lgap;
+      const lgx0   = funnelX - lgridW - 12 + lgap / 2;
+      const lgy0   = cy - lgridH / 2 + lgap / 2;
+
+      // How many grid slots are "active" (still waiting)
+      const activeSlots = Math.round(waiting / totalCount * GRID_N);
+
+      // Panel background box
+      c.save();
+      c.fillStyle   = 'rgba(79,142,247,0.06)';
+      c.strokeStyle = 'rgba(79,142,247,0.18)';
+      c.lineWidth   = 1;
+      const bx = lgx0 - lfr - 10, by = lgy0 - lfr - 22;
+      const bw = lgridW + 12,      bh = lgridH + lfr + 22 + 30;
+      c.beginPath(); c.roundRect(bx, by, bw, bh, 6); c.fill(); c.stroke();
+      c.restore();
+
+      // Label
+      c.fillStyle = 'rgba(79,142,247,0.9)';
+      c.font = 'bold 10px Inter,sans-serif';
+      c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+      c.fillText(cfg.leftPanel.label || 'Entering', lgx0 + lgridW/2 - lgap/2, lgy0 - lfr - 8);
+
+      // Faces — active ones bright, gone ones very dim
+      for (let fi = 0; fi < GRID_N; fi++) {
+        c.save();
+        c.globalAlpha = fi < activeSlots ? 0.85 : 0.1;
+        drawFace(lgx0 + (fi % lcols) * lgap, lgy0 + Math.floor(fi / lcols) * lgap, lfr, COLORS[fi % COLORS.length], 'normal');
+        c.restore();
+      }
+
+      // Count
+      c.fillStyle = 'rgba(255,255,255,0.65)';
+      c.font = 'bold 12px Inter,sans-serif';
+      c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+      c.fillText(waiting + ' users', lgx0 + lgridW/2 - lgap/2, lgy0 + lgridH + 18);
+    }
+
+    // ── Funnel fill ──
+    c.beginPath();
+    c.moveTo(pts[0][0], cy - pts[0][1]);
+    for (let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], cy - pts[i][1]);
+    c.lineTo(pts[pts.length-1][0], cy + pts[pts.length-1][1]);
+    for (let i = pts.length-1; i >= 0; i--) c.lineTo(pts[i][0], cy + pts[i][1]);
+    c.closePath();
+    const grad = c.createLinearGradient(pts[0][0], 0, pts[pts.length-1][0], 0);
+    grad.addColorStop(0, 'rgba(79,142,247,0.09)');
+    grad.addColorStop(1, 'rgba(124,58,237,0.15)');
+    c.fillStyle = grad; c.fill();
+
+    // ── Funnel walls ──
+    [1, -1].forEach(sign => {
+      c.beginPath();
+      c.moveTo(pts[0][0], cy + sign * pts[0][1]);
+      for (let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], cy + sign * pts[i][1]);
+      c.shadowColor = 'rgba(79,142,247,0.5)';
+      c.shadowBlur  = 10;
+      c.strokeStyle = 'rgba(79,142,247,0.65)';
+      c.lineWidth   = 2;
+      c.stroke();
+      c.shadowBlur  = 0;
+    });
+
+    // ── Gate lines ──
+    gates.forEach((g, i) => {
+      const hh  = fhh(g.x);
+      const col = g.color || '#ef4444';
+      c.save();
+      c.setLineDash([5, 4]);
+      c.beginPath();
+      c.moveTo(g.x, cy - hh);
+      c.lineTo(g.x, cy + hh);
+      c.strokeStyle = col; c.lineWidth = 1.8; c.globalAlpha = 0.7;
+      c.stroke();
+      c.restore();
+      c.fillStyle   = col; c.globalAlpha = 0.9;
+      c.font        = 'bold 10px Inter,sans-serif';
+      c.textAlign   = 'center';
+      c.fillText('Filter ' + (i+1), g.x, cy - hh - 8);
+      c.globalAlpha = 1;
+    });
+
+    // ── Count labels ──
+    if (cfg.counts) {
+      cfg.counts.forEach((ct, i) => {
+        const xPos = i === 0 ? pts[0][0] + 12
+                   : (gates[i-1] ? gates[i-1].x + 12 : pts[pts.length-1][0] - 60);
+        const hh  = fhh(xPos);
+        const col = ['#4f8ef7','#f59e0b','#06b6d4','#10b981'][i] || '#fff';
+        c.fillStyle = col + 'cc'; c.font = '10px Inter,sans-serif';
+        c.textAlign = 'left';
+        c.fillText(ct, xPos, cy - hh - 22);
+        c.globalAlpha = 1;
+      });
+    }
+
+    // ── Particles (flowing + rejecting) ──
+    particles.forEach(p => {
+      if (p.state === 'dead' || p.state === 'done' || p.alpha <= 0) return;
+      c.save();
+      c.globalAlpha = p.alpha;
+      const isRej = p.state === 'rejected';
+      if (!isRej) { c.shadowColor = p.color; c.shadowBlur = 9; }
+      drawFace(p.x, p.y, p.r, p.color, isRej ? 'rejected' : 'normal');
+      c.shadowBlur = 0;
+      c.restore();
+    });
+
+    // ── Right panel: faces that passed ──
+    if (cfg.rightPanel) {
+      const PX    = (cfg.funnelEndX !== undefined ? cfg.funnelEndX : W - 150) + 12;
+      const rcols = 3, rfr = 10, rgap = 24;
+      const showN = Math.min(exitedCount, 18);
+      const rrows = Math.max(Math.ceil(showN / rcols), 1);
+      const rgridW = rcols * rgap;
+      const rgridH = rrows * rgap;
+      const rgx0   = PX + rgap / 2;
+      const rgy0   = cy - rgridH / 2 + rgap / 2;
+
+      if (showN > 0) {
+        // Panel background box
+        c.save();
+        c.fillStyle   = 'rgba(16,185,129,0.07)';
+        c.strokeStyle = 'rgba(16,185,129,0.25)';
+        c.lineWidth   = 1;
+        const bx = rgx0 - rfr - 8, by = rgy0 - rfr - 22;
+        const bw = rgridW + 12,     bh = rgridH + rfr + 22 + 30;
+        c.beginPath(); c.roundRect(bx, by, bw, bh, 6); c.fill(); c.stroke();
+        c.restore();
+
+        // Label
+        c.fillStyle = 'rgba(16,185,129,0.9)';
+        c.font = 'bold 10px Inter,sans-serif';
+        c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+        c.fillText('✓ Passed', rgx0 + rgridW/2 - rgap/2, rgy0 - rfr - 8);
+
+        // Faces
+        for (let fi = 0; fi < showN; fi++) {
+          drawFace(rgx0 + (fi % rcols) * rgap, rgy0 + Math.floor(fi / rcols) * rgap, rfr, '#10b981', 'exited');
+        }
+
+        // Count
+        c.globalAlpha = Math.min(exitedCount / 3, 1);
+        c.fillStyle = '#34d399'; c.font = 'bold 12px Inter,sans-serif';
+        c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+        c.fillText(exitedCount + ' passed', rgx0 + rgridW/2 - rgap/2, rgy0 + rgridH + 18);
+        c.globalAlpha = 1;
+      }
+    }
+  }
+
+  function loop() { update(); draw(); rafId = requestAnimationFrame(loop); }
+  loop();
+  return () => cancelAnimationFrame(rafId);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// SETUP 4 — Horizontal Funnel 1 (200→12, 3 gates)
+// ════════════════════════════════════════════════════════════════════
+function setup4() {
+  const canvas = document.getElementById('hfunnel-canvas-4');
+  return hFunnel(canvas, {
+    width: 1100, height: 380,
+    pts: [[165,130],[380,110],[610,70],[855,38],[945,38]],
+    gates: [
+      { x: 380, passProb: 0.52, color: '#ef4444' },
+      { x: 610, passProb: 0.47, color: '#f59e0b' },
+      { x: 855, passProb: 0.52, color: '#10b981' },
+    ],
+    counts: ['Profiles in', 'Filter 1', 'Filter 2', 'Shortlisted'],
+    entryLabel: '',
+    exitLabel: '',
+    funnelStartX: 165,
+    funnelEndX: 945,
+    maxSpawn: 32,
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════
+// SETUP 5 — Combined Outreach (LinkedIn + Gmail split screen)
+// ════════════════════════════════════════════════════════════════════
+function setup5() {
+  const stage = document.getElementById('s5-stage');
+  const timers = [];
+  const T = (fn, d) => timers.push(setTimeout(fn, d));
+
+  stage.innerHTML = `
+    <div style="height:100%;display:flex;background:#F3F2EF;font-family:Inter,sans-serif;">
+
+      <!-- Left: LinkedIn -->
+      <div style="flex:1;display:flex;flex-direction:column;border-right:2px solid #e0ddd8;">
+        <div style="background:#fff;border-bottom:1px solid #e0ddd8;height:44px;display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;">
+          <div style="background:#0A66C2;color:#fff;font-size:14px;font-weight:900;width:26px;height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">in</div>
+          <span style="font-size:13px;font-weight:700;color:#0A66C2;">LinkedIn Message</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;background:#fff;overflow:hidden;">
+          <div style="padding:10px 14px;border-bottom:1px solid #e0ddd8;display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            <div style="width:34px;height:34px;border-radius:50%;background:#4f8ef722;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#4f8ef7;flex-shrink:0;">AM</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#000;">Arjun Mehta</div>
+              <div style="font-size:11px;color:#666;">Sr. ML Engineer @ Google · Active now</div>
+            </div>
+          </div>
+          <div id="li-messages" style="flex:1;padding:12px 14px;display:flex;flex-direction:column;gap:8px;overflow:hidden;"></div>
+          <div style="border-top:1px solid #e0ddd8;padding:10px 12px;flex-shrink:0;">
+            <div style="border:1px solid #ddd;border-radius:8px;padding:8px 10px;font-size:12px;color:#333;background:#fff;min-height:38px;">
+              <span id="li-compose" style="white-space:pre-wrap;"></span><span style="display:inline-block;width:2px;height:12px;background:#0A66C2;vertical-align:middle;animation:typingCursor 0.7s infinite;"></span>
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:6px;">
+              <button id="li-send-btn" style="background:#0A66C2;color:#fff;border:none;padding:6px 16px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Gmail -->
+      <div style="flex:1;display:flex;flex-direction:column;background:#F1F3F4;">
+        <div style="background:#F1F3F4;height:44px;display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0;border-bottom:1px solid #e0e0e0;">
+          <span style="font-size:17px;font-weight:700;line-height:1;"><span style="color:#4285F4;">G</span><span style="color:#EA4335;">m</span><span style="color:#FBBC05;">a</span><span style="color:#34A853;">i</span><span style="color:#4285F4;">l</span></span>
+          <span style="font-size:12px;color:#666;margin-left:4px;">— New Message</span>
+        </div>
+        <div style="flex:1;display:flex;align-items:flex-end;padding:0 16px 0;">
+          <div style="width:100%;background:#fff;border-radius:8px 8px 0 0;box-shadow:0 4px 24px rgba(0,0,0,0.18);overflow:hidden;display:flex;flex-direction:column;">
+            <div style="background:#404040;color:#fff;padding:8px 14px;font-size:13px;font-weight:500;flex-shrink:0;">New Message</div>
+            <div style="padding:7px 12px;border-bottom:1px solid #e0e0e0;font-size:12px;display:flex;align-items:center;gap:6px;flex-shrink:0;">
+              <span style="color:#888;min-width:38px;">To</span>
+              <span id="gm-to" style="color:#1a73e8;"></span>
+            </div>
+            <div style="padding:7px 12px;border-bottom:1px solid #e0e0e0;font-size:12px;display:flex;align-items:center;gap:6px;flex-shrink:0;">
+              <span style="color:#888;min-width:38px;">Subject</span>
+              <span id="gm-subj" style="font-weight:600;color:#202124;"></span>
+            </div>
+            <div style="padding:10px 12px;min-height:130px;font-size:12px;color:#202124;line-height:1.6;">
+              <span id="gm-body" style="white-space:pre-wrap;"></span><span style="display:inline-block;width:2px;height:12px;background:#0B57D0;vertical-align:middle;animation:typingCursor 0.7s infinite;"></span>
+            </div>
+            <div style="padding:8px 12px;border-top:1px solid #e0e0e0;flex-shrink:0;">
+              <button id="gm-send-btn" style="background:#0B57D0;color:#fff;border:none;padding:7px 20px;border-radius:4px;font-size:12px;font-weight:500;cursor:pointer;">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div id="mc5" class="mock-cursor" style="left:300px;top:500px;display:none;"></div>
+  `;
+
+  const liMsg  = 'Hi Arjun! Your ML work at Google is exactly what we need. Interested in a Senior ML role at TechCorp AI — remote, $180K–$220K?';
+  const gmTo   = 'arjun.mehta@gmail.com';
+  const gmSubj = 'Senior ML Engineer — TechCorp AI';
+  const gmBody = "Hi Arjun,\n\nWe'd love to connect about a Senior ML role at TechCorp AI.\nRemote · $180K–$220K. Your profile is a great fit.\n\nBest,\nShortlisted.ai";
+
+  // Type LinkedIn message
+  let liIdx = 0;
+  const liType = setInterval(() => {
+    const el = document.getElementById('li-compose');
+    if (!el) { clearInterval(liType); return; }
+    if (liIdx < liMsg.length) { el.textContent += liMsg[liIdx++]; }
+    else clearInterval(liType);
+  }, 16);
+  timers.push(liType);
+
+  // Type Gmail To simultaneously
+  let gmToIdx = 0;
+  const gmToType = setInterval(() => {
+    const el = document.getElementById('gm-to');
+    if (!el) { clearInterval(gmToType); return; }
+    if (gmToIdx < gmTo.length) el.textContent += gmTo[gmToIdx++];
+    else clearInterval(gmToType);
+  }, 20);
+  timers.push(gmToType);
+
+  const TO_DONE = gmTo.length * 20 + 80;
+  T(() => {
+    let i = 0;
+    const iv = setInterval(() => {
+      const el = document.getElementById('gm-subj');
+      if (!el) { clearInterval(iv); return; }
+      if (i < gmSubj.length) el.textContent += gmSubj[i++];
+      else clearInterval(iv);
+    }, 18);
+    timers.push(iv);
+  }, TO_DONE);
+
+  T(() => {
+    let i = 0;
+    const iv = setInterval(() => {
+      const el = document.getElementById('gm-body');
+      if (!el) { clearInterval(iv); return; }
+      if (i < gmBody.length) { el.textContent += gmBody[i++]; }
+      else clearInterval(iv);
+    }, 14);
+    timers.push(iv);
+  }, TO_DONE + gmSubj.length * 18 + 80);
+
+  const LI_DONE = liMsg.length * 16 + 120;
+  const GM_DONE = TO_DONE + gmSubj.length * 18 + gmBody.length * 14 + 200;
+  const BOTH_DONE = Math.max(LI_DONE, GM_DONE);
+
+  // Send LinkedIn
+  T(() => {
+    const btn = document.getElementById('li-send-btn');
+    if (btn) btn.style.transform = 'scale(0.9)';
+    if (audioInited) SFX.sendSound();
+    const msgs = document.getElementById('li-messages');
+    if (msgs) {
+      const bub = document.createElement('div');
+      bub.style.cssText = 'display:flex;justify-content:flex-end;';
+      bub.innerHTML = `<div style="max-width:88%;background:#0A66C2;color:#fff;padding:8px 12px;border-radius:14px 14px 2px 14px;font-size:11.5px;line-height:1.5;animation:fadeIn 0.25s ease;">${liMsg}</div>`;
+      msgs.appendChild(bub);
+    }
+    const ct = document.getElementById('li-compose');
+    if (ct) ct.textContent = '';
+  }, BOTH_DONE);
+
+  // Send Gmail — show sent flash
+  T(() => {
+    const btn = document.getElementById('gm-send-btn');
+    if (btn) btn.style.transform = 'scale(0.9)';
+    if (audioInited) SFX.sendSound();
+    const body = document.getElementById('gm-body');
+    if (body) {
+      const wrap = body.closest('div[style*="min-height"]');
+      if (wrap) wrap.innerHTML = `<div style="padding:24px 12px;text-align:center;color:#34A853;font-size:13px;font-weight:600;animation:fadeIn 0.3s ease;">✓ Email sent to ${gmTo}</div>`;
+    }
+  }, BOTH_DONE + 150);
+
+  // Gmail — candidate reply with resume
+  T(() => {
+    const rightPanel = document.getElementById('gm-send-btn')?.closest('div[style*="flex-direction:column;background:#fff"]') ||
+                       document.querySelector('#s5-stage > div > div:last-child > div:last-child');
+    // Replace the entire compose panel with a reply thread view
+    const gmRight = document.querySelector('#s5-stage > div > div:last-child');
+    if (!gmRight) return;
+    gmRight.innerHTML = `
+      <div style="background:#F1F3F4;height:44px;display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0;border-bottom:1px solid #e0e0e0;">
+        <span style="font-size:17px;font-weight:700;line-height:1;"><span style="color:#4285F4;">G</span><span style="color:#EA4335;">m</span><span style="color:#FBBC05;">a</span><span style="color:#34A853;">i</span><span style="color:#4285F4;">l</span></span>
+        <span style="font-size:12px;color:#666;margin-left:4px;">— Inbox</span>
+        <span style="margin-left:auto;background:#EA4335;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;animation:fadeIn 0.3s ease;">1 new</span>
+      </div>
+      <div style="flex:1;background:#fff;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="padding:10px 14px;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;gap:10px;background:#fff;">
+          <div style="width:34px;height:34px;border-radius:50%;background:#4f8ef7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;">AM</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:13px;font-weight:700;color:#202124;">Arjun Mehta</span>
+              <span style="font-size:11px;font-weight:700;color:#1a73e8;">just now</span>
+            </div>
+            <div style="font-size:11px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Re: Senior ML Engineer — TechCorp AI</div>
+          </div>
+        </div>
+        <div style="padding:14px 16px;font-size:12px;color:#202124;line-height:1.65;animation:fadeIn 0.4s ease;">
+          Hi,<br><br>Thanks for reaching out — I'd love to learn more about this role. Please find my resume attached.<br><br>Happy to jump on a call this week!<br><br>Best,<br>Arjun
+          <div style="display:flex;align-items:center;gap:10px;margin-top:14px;background:#f8f9fa;border:1px solid #dadce0;border-radius:8px;padding:10px 14px;cursor:pointer;">
+            <div style="width:32px;height:42px;background:#E53935;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 6px rgba(229,57,53,0.25);"><span style="color:#fff;font-size:8px;font-weight:700;">PDF</span></div>
+            <div><div style="font-size:12px;font-weight:600;color:#202124;">Arjun_Mehta_Resume.pdf</div><div style="font-size:11px;color:#888;margin-top:2px;">2.4 MB · PDF Document</div></div>
+            <div style="margin-left:auto;display:flex;gap:12px;flex-shrink:0;">
+              <span style="font-size:11px;color:#1a73e8;font-weight:500;">⬇ Download</span>
+              <span style="font-size:11px;color:#1a73e8;font-weight:500;">👁 Preview</span>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    if (audioInited) SFX.profilePing();
+  }, BOTH_DONE + 1200);
+
+  // LinkedIn reply
+  T(() => {
+    const msgs = document.getElementById('li-messages');
+    if (msgs) {
+      const rep = document.createElement('div');
+      rep.style.cssText = 'display:flex;align-items:flex-end;gap:6px;';
+      rep.innerHTML = `
+        <div style="width:22px;height:22px;border-radius:50%;background:#4f8ef722;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#4f8ef7;flex-shrink:0;">AM</div>
+        <div style="max-width:88%;background:#f0f0f0;color:#202124;padding:8px 12px;border-radius:14px 14px 14px 2px;font-size:11.5px;line-height:1.5;animation:fadeIn 0.3s ease;">
+          Sure! Here's my resume — happy to connect.
+          <div style="display:flex;align-items:center;gap:8px;margin-top:7px;background:#fff;border:1px solid #ddd;border-radius:7px;padding:7px 10px;">
+            <div style="width:28px;height:36px;background:#E53935;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#fff;font-size:7px;font-weight:700;">PDF</span></div>
+            <div><div style="font-size:11px;font-weight:600;color:#202124;">Arjun_Mehta_Resume.pdf</div><div style="font-size:10px;color:#888;margin-top:1px;">2.4 MB</div></div>
+          </div>
+        </div>`;
+      msgs.appendChild(rep);
+      if (audioInited) SFX.profilePing();
+    }
+  }, BOTH_DONE + 1200);
+
+  T(() => { if (audioInited) SFX.triumph(); }, BOTH_DONE + 1800);
+
+  return () => timers.forEach(t => { try { clearTimeout(t); clearInterval(t); } catch(e){} });
+}
+
+// SETUP 7 — Resume Scoring (box animation)
+// ════════════════════════════════════════════════════════════════════
+function setup7() {
+  const stage = document.getElementById('s7-stage');
+  if (!stage) return;
+
+  const timers = [];
+  const T = (fn, d) => timers.push(setTimeout(fn, d));
+
+  const resumes = [
+    { name:'Arjun Mehta',  init:'AM', score:88, color:'#4f8ef7' },
+    { name:'Priya Sharma', init:'PS', score:91, color:'#7c3aed' },
+    { name:'Rohan Gupta',  init:'RG', score:83, color:'#06b6d4' },
+    { name:'Alex Torres',  init:'AT', score:55, color:'#f59e0b' },
+    { name:'Maya Rao',     init:'MR', score:48, color:'#14b8a6' },
+  ];
+  const THRESH = 65;
+
+  // Layout constants
+  const CARD_H = 44, GAP = 7, SLOT = 51;
+  const totalH = resumes.length * CARD_H + (resumes.length - 1) * GAP; // 503
+  const startY = Math.round((720 - totalH) / 2);  // ~109
+  const LEFT_X  = 40,  LIST_W  = 470;
+  const BOX_X   = 548, BOX_W   = 184;
+  const RIGHT_X = 768, RLIST_W = 472;
+  const BOX_TOP = startY - 18, BOX_H = totalH + 36;
+
+  stage.innerHTML = `
+    <div style="width:1280px;height:720px;position:relative;background:#07070f;overflow:hidden;font-family:Inter,sans-serif;">
+
+      <!-- Left: resume list -->
+      <div id="s7-left" style="position:absolute;left:${LEFT_X}px;top:${startY}px;width:${LIST_W}px;display:flex;flex-direction:column;gap:${GAP}px;"></div>
+
+      <!-- Center: AI black box -->
+      <div id="s7-aibox" style="position:absolute;left:${BOX_X}px;top:${BOX_TOP}px;width:${BOX_W}px;height:${BOX_H}px;background:linear-gradient(170deg,#0e0325 0%,#04091a 100%);border:1px solid rgba(79,142,247,0.2);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;box-shadow:0 0 50px rgba(79,142,247,0.06),inset 0 0 60px rgba(0,0,0,0.5);transition:box-shadow 0.3s,border-color 0.3s;">
+        <div style="font-size:38px;line-height:1;color:rgba(255,255,255,0.82);">✦</div>
+      </div>
+
+      <!-- Right: score list -->
+      <div id="s7-right" style="position:absolute;left:${RIGHT_X}px;top:${startY}px;width:${RLIST_W}px;display:flex;flex-direction:column;gap:${GAP}px;"></div>
+
+      <!-- Flying card (absolutely positioned overlay) -->
+      <div id="s7-flyer" style="position:absolute;pointer-events:none;z-index:20;height:${CARD_H}px;border-radius:8px;display:flex;align-items:center;gap:10px;padding:0 12px;opacity:0;overflow:hidden;"></div>
+
+    </div>
+  `;
+
+  const leftEl  = document.getElementById('s7-left');
+  const rightEl = document.getElementById('s7-right');
+  const aibox   = document.getElementById('s7-aibox');
+  const flyer   = document.getElementById('s7-flyer');
+
+  // Build left cards + right score slots
+  resumes.forEach((r, i) => {
+    // Left card
+    const card = document.createElement('div');
+    card.id = 's7-lcard-' + i;
+    card.style.cssText = `height:${CARD_H}px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;display:flex;align-items:center;gap:10px;padding:0 12px;opacity:0;transform:translateX(-14px);transition:opacity 0.25s,transform 0.25s,background 0.35s,border-color 0.35s;`;
+    card.innerHTML = `
+      <div style="width:26px;height:26px;border-radius:5px;background:${r.color}1a;border:1px solid ${r.color}40;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:${r.color};flex-shrink:0;">${r.init}</div>
+      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name}</div>
+      <div id="s7-lsc-${i}" style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.18);min-width:34px;text-align:right;transition:color 0.3s;">—</div>`;
+    leftEl.appendChild(card);
+
+    // Right score slot
+    const slot = document.createElement('div');
+    slot.id = 's7-rscore-' + i;
+    slot.style.cssText = `height:${CARD_H}px;display:flex;align-items:center;gap:10px;padding:0 12px;opacity:0;transform:translateX(10px);transition:opacity 0.28s,transform 0.28s;`;
+    slot.innerHTML = `
+      <div id="s7-rnum-${i}" style="font-size:18px;font-weight:800;min-width:50px;line-height:1;"></div>
+      <div id="s7-rlbl-${i}" style="font-size:8px;font-weight:700;letter-spacing:2px;padding:3px 9px;border-radius:4px;flex-shrink:0;"></div>`;
+    rightEl.appendChild(slot);
+  });
+
+  // Phase 1: all left cards appear fast (staggered)
+  const APPEAR_PER = 110;
+  resumes.forEach((r, i) => {
+    T(() => {
+      const card = document.getElementById('s7-lcard-' + i);
+      if (card) { card.style.opacity = '1'; card.style.transform = 'translateX(0)'; }
+      if (audioInited) SFX.profilePing();
+    }, 160 + i * APPEAR_PER);
+  });
+
+  // Phase 2: process each resume one by one through the box
+  const ALL_APPEARED = 160 + (resumes.length - 1) * APPEAR_PER + 380;
+  const CYCLE = 730;
+
+  resumes.forEach((r, i) => {
+    const t0   = ALL_APPEARED + i * CYCLE;
+    const pass = r.score >= THRESH;
+    const cardY = startY + i * SLOT;
+
+    // Step A: highlight card, launch flyer toward box
+    T(() => {
+      const card = document.getElementById('s7-lcard-' + i);
+      if (card) { card.style.background = r.color + '18'; card.style.borderColor = r.color + '50'; }
+
+      // Set flyer at card's position
+      flyer.style.transition  = 'none';
+      flyer.style.left        = LEFT_X + 'px';
+      flyer.style.top         = cardY + 'px';
+      flyer.style.width       = LIST_W + 'px';
+      flyer.style.background  = r.color + '18';
+      flyer.style.border      = `1px solid ${r.color}50`;
+      flyer.style.opacity     = '1';
+      flyer.innerHTML = `
+        <div style="width:26px;height:26px;border-radius:5px;background:${r.color}20;border:1px solid ${r.color}40;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:${r.color};">${r.init}</div>
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.8);flex:1;">${r.name}</div>`;
+
+      // Fly into the box (horizontal, same row)
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        flyer.style.transition = 'left 0.3s ease-in, width 0.3s ease-in, opacity 0.28s ease-in';
+        flyer.style.left       = BOX_X + 'px';
+        flyer.style.width      = (BOX_W - 16) + 'px';
+        flyer.style.opacity    = '0.22';
+      }));
+
+    }, t0);
+
+    // Step B: box glows, flyer vanishes, left card updates
+    T(() => {
+      flyer.style.transition = 'opacity 0.12s';
+      flyer.style.opacity    = '0';
+
+      if (aibox) {
+        const glow = pass ? 'rgba(16,185,129,0.6)' : 'rgba(239,68,68,0.5)';
+        aibox.style.boxShadow   = `0 0 70px ${glow}, inset 0 0 60px rgba(0,0,0,0.5)`;
+        aibox.style.borderColor = pass ? 'rgba(16,185,129,0.7)' : 'rgba(239,68,68,0.6)';
+        setTimeout(() => {
+          if (aibox) {
+            aibox.style.boxShadow   = '0 0 50px rgba(79,142,247,0.06),inset 0 0 60px rgba(0,0,0,0.5)';
+            aibox.style.borderColor = 'rgba(79,142,247,0.2)';
+          }
+        }, 400);
+      }
+      if (audioInited) pass ? SFX.accept() : SFX.reject();
+
+      const card = document.getElementById('s7-lcard-' + i);
+      const lsc  = document.getElementById('s7-lsc-' + i);
+      if (card) {
+        card.style.background  = pass ? 'rgba(16,185,129,0.06)'  : 'rgba(239,68,68,0.04)';
+        card.style.borderColor = pass ? 'rgba(16,185,129,0.18)'  : 'rgba(239,68,68,0.15)';
+      }
+      if (lsc) { lsc.textContent = r.score + '%'; lsc.style.color = pass ? '#10b981' : '#ef4444'; }
+    }, t0 + 330);
+
+    // Step C: score slides in on the right
+    T(() => {
+      const slot = document.getElementById('s7-rscore-' + i);
+      const rnum = document.getElementById('s7-rnum-' + i);
+      const rlbl = document.getElementById('s7-rlbl-' + i);
+      if (!slot || !rnum || !rlbl) return;
+      rnum.textContent      = r.score + '%';
+      rnum.style.color      = pass ? '#10b981' : '#ef4444';
+      rlbl.textContent      = pass ? 'PASS' : 'FAIL';
+      rlbl.style.color      = pass ? '#10b981' : '#ef4444';
+      rlbl.style.background = pass ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.1)';
+      rlbl.style.border     = `1px solid ${pass ? 'rgba(16,185,129,0.28)' : 'rgba(239,68,68,0.22)'}`;
+      slot.style.opacity    = '1';
+      slot.style.transform  = 'translateX(0)';
+    }, t0 + 500);
+  });
+
+  // Done
+  const lastT = ALL_APPEARED + (resumes.length - 1) * CYCLE + 500;
+  T(() => { if (audioInited) SFX.triumph(); }, lastT + 160);
+
+  return () => timers.forEach(t => { try { clearTimeout(t); } catch(e){} });
+}
+
+// ════════════════════════════════════════════════════════════════════
+// SETUP 8 — Calendar Scheduling (LinkedIn + Gmail split)
+// ════════════════════════════════════════════════════════════════════
+function setup8() {
+  const stage = document.getElementById('s8-stage');
+  const timers = [];
+  const T = (fn, d) => timers.push(setTimeout(fn, d));
+
+  const calCard = (selected) => `
+    <div style="background:#fff;border:1px solid #e0ddd8;border-radius:10px;overflow:hidden;margin-top:8px;animation:fadeIn 0.3s ease;">
+      <div style="background:linear-gradient(135deg,#4f8ef7,#7c3aed);padding:10px 14px;">
+        <div style="font-size:12px;font-weight:700;color:#fff;">📅 Schedule Intro Call</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.75);margin-top:2px;">TechCorp AI · 30 min · Video call</div>
+      </div>
+      <div style="padding:10px 12px;display:flex;flex-direction:column;gap:5px;">
+        ${[
+          { label:'Thu, 29 May · 10:00 AM', id:'s1' },
+          { label:'Thu, 29 May · 2:00 PM',  id:'s2' },
+          { label:'Fri, 30 May · 11:00 AM', id:'s3' },
+        ].map(s => `
+          <div style="padding:6px 10px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid ${selected===s.id?'#4f8ef7':'#e0e0e0'};background:${selected===s.id?'rgba(79,142,247,0.1)':'#fafafa'};color:${selected===s.id?'#4f8ef7':'#555'};display:flex;align-items:center;gap:6px;">
+            <span style="width:12px;height:12px;border-radius:50%;border:2px solid ${selected===s.id?'#4f8ef7':'#ccc'};background:${selected===s.id?'#4f8ef7':'transparent'};display:inline-block;flex-shrink:0;"></span>
+            ${s.label}${selected===s.id?' <span style="margin-left:auto;font-size:10px;color:#4f8ef7;">✓ Confirmed</span>':''}
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  stage.innerHTML = `
+    <div style="height:100%;display:flex;background:#F3F2EF;font-family:Inter,sans-serif;">
+
+      <!-- Left: LinkedIn -->
+      <div style="flex:1;display:flex;flex-direction:column;border-right:2px solid #e0ddd8;">
+        <div style="background:#fff;border-bottom:1px solid #e0ddd8;height:44px;display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;">
+          <div style="background:#0A66C2;color:#fff;font-size:14px;font-weight:900;width:26px;height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">in</div>
+          <span style="font-size:13px;font-weight:700;color:#0A66C2;">LinkedIn Message</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;background:#fff;overflow:hidden;">
+          <div style="padding:10px 14px;border-bottom:1px solid #e0ddd8;display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            <div style="width:34px;height:34px;border-radius:50%;background:#4f8ef722;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#4f8ef7;flex-shrink:0;">AM</div>
+            <div><div style="font-size:13px;font-weight:700;color:#000;">Arjun Mehta</div><div style="font-size:11px;color:#666;">Sr. ML Engineer @ Google</div></div>
+          </div>
+          <div id="li2-msgs" style="flex:1;padding:12px 14px;display:flex;flex-direction:column;gap:8px;overflow:hidden;">
+            <!-- Arjun's resume reply -->
+            <div style="display:flex;align-items:flex-end;gap:6px;">
+              <div style="width:22px;height:22px;border-radius:50%;background:#4f8ef722;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#4f8ef7;flex-shrink:0;">AM</div>
+              <div style="max-width:88%;background:#f0f0f0;color:#202124;padding:8px 12px;border-radius:14px 14px 14px 2px;font-size:11.5px;line-height:1.5;">
+                Sure! Here's my resume — happy to connect.
+                <div style="display:flex;align-items:center;gap:7px;margin-top:6px;background:#fff;border:1px solid #ddd;border-radius:6px;padding:6px 8px;">
+                  <div style="width:24px;height:30px;background:#E53935;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#fff;font-size:7px;font-weight:700;">PDF</span></div>
+                  <div><div style="font-size:10px;font-weight:600;color:#202124;">Arjun_Mehta_Resume.pdf</div><div style="font-size:9px;color:#888;">2.4 MB</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Gmail -->
+      <div style="flex:1;display:flex;flex-direction:column;background:#F1F3F4;">
+        <div style="background:#F1F3F4;height:44px;display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0;border-bottom:1px solid #e0e0e0;">
+          <span style="font-size:17px;font-weight:700;"><span style="color:#4285F4;">G</span><span style="color:#EA4335;">m</span><span style="color:#FBBC05;">a</span><span style="color:#34A853;">i</span><span style="color:#4285F4;">l</span></span>
+          <span style="font-size:12px;color:#666;margin-left:4px;">— Thread: Senior ML Engineer</span>
+        </div>
+        <div style="flex:1;background:#fff;overflow:hidden;display:flex;flex-direction:column;">
+          <div style="padding:10px 14px;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            <div style="width:34px;height:34px;border-radius:50%;background:#4f8ef7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;">AM</div>
+            <div><div style="font-size:13px;font-weight:700;color:#202124;">Arjun Mehta</div><div style="font-size:11px;color:#666;">Re: Senior ML Engineer — TechCorp AI</div></div>
+          </div>
+          <div id="gm2-msgs" style="flex:1;padding:14px 16px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
+            <!-- Arjun's email reply with resume -->
+            <div style="font-size:12px;color:#202124;line-height:1.65;">
+              Hi,<br>Thanks for reaching out — please find my resume attached.<br>Happy to jump on a call!<br><br>Best, Arjun
+              <div style="display:flex;align-items:center;gap:10px;margin-top:10px;background:#f8f9fa;border:1px solid #dadce0;border-radius:8px;padding:8px 12px;">
+                <div style="width:28px;height:36px;background:#E53935;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#fff;font-size:7px;font-weight:700;">PDF</span></div>
+                <div><div style="font-size:11px;font-weight:600;color:#202124;">Arjun_Mehta_Resume.pdf</div><div style="font-size:10px;color:#888;">2.4 MB</div></div>
+                <span style="margin-left:auto;font-size:11px;color:#1a73e8;font-weight:500;">⬇ Download</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div id="mc8" class="mock-cursor" style="left:300px;top:500px;display:none;"></div>
+  `;
+
+  // After 1s — send calendar link on LinkedIn
+  T(() => {
+    const msgs = document.getElementById('li2-msgs');
+    if (!msgs) return;
+    const bub = document.createElement('div');
+    bub.style.cssText = 'display:flex;justify-content:flex-end;animation:fadeIn 0.3s ease;';
+    bub.innerHTML = `<div style="max-width:90%;background:#0A66C2;color:#fff;padding:8px 12px;border-radius:14px 14px 2px 14px;font-size:11.5px;line-height:1.5;">
+      Great! Let's schedule a quick intro call. Pick a time that works for you:
+      ${calCard(null)}
+    </div>`;
+    msgs.appendChild(bub);
+    if (audioInited) SFX.sendSound();
+  }, 1000);
+
+  // After 1s — send calendar link on Gmail
+  T(() => {
+    const msgs = document.getElementById('gm2-msgs');
+    if (!msgs) return;
+    const reply = document.createElement('div');
+    reply.style.cssText = 'border-top:1px solid #f0f0f0;padding-top:10px;animation:fadeIn 0.3s ease;';
+    reply.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:#4285F4;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0;">T</div>
+        <div><div style="font-size:12px;font-weight:700;color:#202124;">Shortlisted.ai Recruiting</div><div style="font-size:10px;color:#888;">to arjun.mehta@gmail.com · just now</div></div>
+      </div>
+      <div style="font-size:12px;color:#202124;line-height:1.6;">
+        Hi Arjun, thanks for sending over your resume!<br>Please pick a time for a quick intro call:
+        ${calCard(null)}
+      </div>`;
+    msgs.appendChild(reply);
+    if (audioInited) SFX.sendSound();
+  }, 1200);
+
+  // After 4s — candidate selects a slot on LinkedIn
+  T(() => {
+    const msgs = document.getElementById('li2-msgs');
+    if (!msgs) return;
+    const last = msgs.lastElementChild?.querySelector('div[style*="0A66C2"]');
+    if (last) last.innerHTML = `Great! Let's schedule a quick intro call. Pick a time that works for you:${calCard('s2')}`;
+    if (audioInited) SFX.accept();
+  }, 4500);
+
+  // After 4.5s — candidate confirms on Gmail
+  T(() => {
+    const msgs = document.getElementById('gm2-msgs');
+    if (!msgs) return;
+    const calWrap = msgs.lastElementChild?.querySelector('.cal-slots') || msgs.lastElementChild;
+    const cards = msgs.querySelectorAll('[style*="calCard"], div[style*="border-radius:10px"]');
+    // Re-render with selected slot
+    const lastReply = msgs.lastElementChild;
+    if (lastReply) {
+      const bodyDiv = lastReply.querySelector('div[style*="line-height:1.6"]');
+      if (bodyDiv) bodyDiv.innerHTML = `Hi Arjun, thanks for sending over your resume!<br>Please pick a time for a quick intro call:${calCard('s2')}`;
+    }
+    if (audioInited) SFX.accept();
+  }, 5000);
+
+  T(() => { if (audioInited) SFX.triumph(); }, 6500);
+
+  return () => timers.forEach(t => { try { clearTimeout(t); } catch(e){} });
+}
+
+// ════════════════════════════════════════════════════════════════════
+// SETUP 9 — AI Intro Call
+// ════════════════════════════════════════════════════════════════════
+function setup9() {
+  const wf = document.getElementById('waveform-9');
+  const timerEl = document.getElementById('call-timer-9');
+  const tr = document.getElementById('transcript-9');
+  if (!wf || !timerEl || !tr) return;
+
+  wf.innerHTML = '';
+  for (let i=0; i<52; i++) {
+    const b = document.createElement('div'); b.className = 'wbar';
+    const h = 6 + Math.random()*34;
+    b.style.setProperty('--wh', h+'px');
+    b.style.animationDelay = (Math.random()*0.8)+'s';
+    b.style.animationDuration = (0.45+Math.random()*0.55)+'s';
+    wf.appendChild(b);
+  }
+
+  let secs = 0;
+  const clk = setInterval(() => {
+    secs++;
+    if (timerEl) timerEl.textContent = `0:${secs.toString().padStart(2,'0')}`;
+  }, 1000);
+  setTimeout(() => clearInterval(clk), 7000);
+
+  if (audioInited) {
+    SFX.note(440, 0.3, 'sine', 0.2);
+    SFX.note(440, 0.3, 'sine', 0.2, 0.5);
+    setTimeout(() => SFX.note(523.25, 0.1, 'sine', 0.15), 1200);
+  }
+
+  const lines = [
+    { sp:'AI',     tx:"Hi! Thanks for joining. Can you walk me through your ML background?",       delay:0.5 },
+    { sp:'Cand.',  tx:"Sure — 5 years building production models at scale, mostly NLP and recs.", delay:1.4 },
+    { sp:'AI',     tx:"Have you worked with distributed training across GPU clusters?",            delay:2.4 },
+    { sp:'Cand.',  tx:"Yes — PyTorch with DeepSpeed on AWS, up to 128 A100s.",                    delay:3.3 },
+  ];
+  tr.innerHTML = '';
+  lines.forEach(l => {
+    const d = document.createElement('div'); d.className = 'tline';
+    d.style.animationDelay = l.delay+'s';
+    d.innerHTML = `<span class="tspeaker">${l.sp}</span><span class="ttext">${l.tx}</span>`;
+    tr.appendChild(d);
+  });
+  setTimeout(() => {
+    const chip = document.createElement('div'); chip.className = 'score-chip';
+    chip.style.animationDelay = '0s'; chip.textContent = '✓  Strong Candidate — Score: 91 / 100';
+    tr.appendChild(chip);
+    if (audioInited) SFX.ping();
+  }, 4200);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// SETUP 10 — Horizontal Funnel 3 (22→5, 2 gates)
+// ════════════════════════════════════════════════════════════════════
+function setup10() {
+  const canvas = document.getElementById('hfunnel-canvas-10');
+  return hFunnel(canvas, {
+    width: 1100, height: 380,
+    pts: [[165,130],[470,110],[770,70],[945,38]],
+    gates: [
+      { x: 470, passProb: 0.56, color: '#7c3aed' },
+      { x: 770, passProb: 0.50, color: '#10b981' },
+    ],
+    counts: ['Candidates in', 'Screened', 'Final picks'],
+    entryLabel: '',
+    exitLabel: '',
+    funnelStartX: 165,
+    funnelEndX: 945,
+    maxSpawn: 16,
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════
+// SETUP 11 — Final Shortlist (single candidate + message)
+// ════════════════════════════════════════════════════════════════════
+function setup11() {
+  const wrap = document.getElementById('s11-card-wrap');
+  const msg  = document.getElementById('s11-msg');
+  if (!wrap || !msg) return;
+
+  const candidates = [
+    { n:'Arjun Mehta',  r:'Sr. ML Engineer @ Google',   init:'AM', color:'#4f8ef7', jd:94, s1:91, s2:88, delay:0    },
+    { n:'Priya Sharma', r:'AI Lead @ Microsoft',         init:'PS', color:'#7c3aed', jd:89, s1:87, s2:85, delay:200  },
+    { n:'Rohan Gupta',  r:'ML Engineer @ OpenAI',        init:'RG', color:'#06b6d4', jd:85, s1:84, s2:83, delay:400  },
+  ];
+
+  wrap.innerHTML = `<div style="display:flex;gap:16px;font-family:Inter,sans-serif;">` +
+    candidates.map(p => `
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(79,142,247,0.22);border-radius:14px;padding:20px 22px;width:260px;opacity:0;transform:translateY(16px);transition:opacity 0.5s ease,transform 0.5s ease;" class="s11-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="width:38px;height:38px;border-radius:50%;background:${p.color}22;border:2px solid ${p.color}66;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:${p.color};flex-shrink:0;">${p.init}</div>
+        <div style="min-width:0;">
+          <div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.n}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.r}</div>
+        </div>
+      </div>
+      <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.28);color:#34d399;font-size:9px;font-weight:700;letter-spacing:1.5px;padding:3px 8px;border-radius:20px;display:inline-block;margin-bottom:14px;">✓ SHORTLISTED</div>
+      <div style="display:flex;gap:0;border-top:1px solid rgba(255,255,255,0.07);padding-top:12px;">
+        <div style="flex:1;text-align:center;">
+          <div style="font-size:18px;font-weight:800;color:#4f8ef7;">${p.jd}%</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.35);margin-top:2px;">JD Match</div>
+        </div>
+        <div style="flex:1;text-align:center;border-left:1px solid rgba(255,255,255,0.07);border-right:1px solid rgba(255,255,255,0.07);">
+          <div style="font-size:18px;font-weight:800;color:#7c3aed;">${p.s1}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.35);margin-top:2px;">Call Score</div>
+        </div>
+        <div style="flex:1;text-align:center;">
+          <div style="font-size:18px;font-weight:800;color:#10b981;">${p.s2}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.35);margin-top:2px;">Tech Score</div>
+        </div>
+      </div>
+    </div>`).join('') + `</div>`;
+
+  // Stagger each card in
+  document.querySelectorAll('.s11-card').forEach((card, i) => {
+    setTimeout(() => {
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+      if (audioInited) SFX.profilePing();
+    }, candidates[i].delay);
+  });
+
+  // Reveal wrap container
+  requestAnimationFrame(() => {
+    wrap.style.opacity   = '1';
+    wrap.style.transform = 'translateY(0)';
+  });
+
+  // Triumph after all cards appear
+  setTimeout(() => {
+    if (audioInited) SFX.triumph();
+  }, 700);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// SETUP MAP
+// ════════════════════════════════════════════════════════════════════
+const setupMap = { 1:setup1, 2:setup2, 3:setup3, 4:setup4, 5:setup5, 6:setup7, 7:setup8, 8:setup9, 9:setup11 };
+
+// ════════════════════════════════════════════════════════════════════
+// LIGHT/DARK SCENE BACKGROUNDS
+// ════════════════════════════════════════════════════════════════════
+const lightScenes = new Set([2, 3, 5, 7]);
+
+function applySceneBg(idx) {
+  const stage = document.getElementById('stage');
+  const gridBg = document.querySelector('.grid-bg');
+  if (lightScenes.has(idx)) {
+    stage.style.background = 'transparent';
+    if (gridBg) gridBg.style.display = 'none';
+  } else {
+    stage.style.background = '#07070f';
+    if (gridBg) gridBg.style.display = '';
+  }
+  // Subtitle contrast
+  const sub = document.getElementById('subtitle');
+  if (lightScenes.has(idx)) {
+    sub.style.background = 'rgba(0,0,0,0.65)';
+    sub.style.color = 'rgba(255,255,255,0.9)';
+  } else {
+    sub.style.background = 'rgba(0,0,0,0.75)';
+    sub.style.color = 'rgba(255,255,255,0.85)';
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// SCENE ENGINE
+// ════════════════════════════════════════════════════════════════════
+let cur = 0, playing = true, timerRef = null, rafRef = null, sceneStart = null;
+let sceneCleaner = null;
+
+// ── Narration MP3 ────────────────────────────────────────────────
+const _narration = new Audio('narration.mp3');
+_narration.volume = 1.0;
+
+function startNarration() {
+  _narration.currentTime = 0;
+  _narration.play().catch(() => {});
+}
+
+function _showSubtitle(text) {
+  const el = document.getElementById('subtitle');
+  if (!el) return;
+  el.textContent = text || '';
+  el.style.opacity = text ? '1' : '0';
+}
+
+function speakScene(idx) {
+  const vo = SCENES[idx] && SCENES[idx].vo;
+  _showSubtitle(vo || '');
+}
+
+function speakText(text) {
+  _showSubtitle(text);
+}
+
+function showScene(idx) {
+  if (sceneCleaner) { sceneCleaner(); sceneCleaner = null; }
+  document.querySelectorAll('.scene').forEach((el,i) => el.classList.toggle('active', i === idx));
+  document.getElementById('subtitle').textContent = SCENES[idx].vo;
+  document.getElementById('scene-counter').textContent = `${idx+1} / ${SCENES.length}`;
+  applySceneBg(idx);
+  if (audioInited) { SFX.playScene(idx); speakScene(idx); }
+  const res = setupMap[idx] ? setupMap[idx]() : null;
+  if (res) sceneCleaner = res;
+}
+
+function getElapsedBefore(idx) {
+  return SCENES.slice(0,idx).reduce((s,x) => s + x.dur, 0);
+}
+
+function startProgress() {
+  cancelAnimationFrame(rafRef);
+  const bar = document.getElementById('progress-bar');
+  const base = getElapsedBefore(cur);
+  sceneStart = performance.now();
+  function tick(now) {
+    bar.style.width = Math.min((base + (now - sceneStart)) / TOTAL * 100, 100) + '%';
+    rafRef = requestAnimationFrame(tick);
+  }
+  rafRef = requestAnimationFrame(tick);
+}
+
+function scheduleNext() {
+  clearTimeout(timerRef);
+  if (!playing) return;
+  timerRef = setTimeout(() => {
+    if (cur < SCENES.length - 1) { cur++; showScene(cur); startProgress(); scheduleNext(); }
+    else cancelAnimationFrame(rafRef);
+  }, SCENES[cur].dur);
+}
+
+function togglePlay() {
+  playing = !playing;
+  document.getElementById('play-btn').textContent = playing ? 'Pause' : 'Play';
+  if (playing) { sceneStart = performance.now(); startProgress(); scheduleNext(); }
+  else { clearTimeout(timerRef); cancelAnimationFrame(rafRef); }
+}
+
+function nextScene() {
+  if (cur < SCENES.length - 1) { clearTimeout(timerRef); cur++; showScene(cur); startProgress(); scheduleNext(); }
+}
+function prevScene() {
+  if (cur > 0) { clearTimeout(timerRef); cur--; showScene(cur); startProgress(); scheduleNext(); }
+}
+function restartDemo() {
+  clearTimeout(timerRef); cancelAnimationFrame(rafRef);
+  cur = 0; playing = true;
+  document.getElementById('play-btn').textContent = 'Pause';
+  document.getElementById('progress-bar').style.width = '0%';
+  showScene(0); startProgress(); scheduleNext();
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') nextScene();
+  if (e.key === 'ArrowLeft')  prevScene();
+  if (e.key === ' ')          { e.preventDefault(); togglePlay(); }
+  if (e.key === 'r' || e.key === 'R') restartDemo();
+  if (e.key === 'm' || e.key === 'M') toggleMute();
+});
+
+// Start
+showScene(0);
+startProgress();
+scheduleNext();
+
+// ── Fullscreen scale ─────────────────────────────────────────────
+function scaleStage() {
+  const stage = document.getElementById('stage');
+  const scaleX = window.innerWidth  / 1280;
+  const scaleY = window.innerHeight / 720;
+  const scale  = Math.min(scaleX, scaleY);
+  stage.style.transform = `scale(${scale})`;
+}
+scaleStage();
+window.addEventListener('resize', scaleStage);
+</script>
+</body>
+</html>
