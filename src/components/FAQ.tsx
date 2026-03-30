@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     q: "How long until we see ROI?",
-    a: "Quick Win projects ($3,500): ROI in 1-2 months. Full projects ($15-25k): ROI in 3-6 months. 1 extra placement ($20-50k fee) pays for the entire project.",
+    a: "At $199–$299 per role, a single successful placement ($20-50k fee) pays for dozens of roles. Most agencies see ROI after their very first hire through us.",
   },
   {
     q: "What if our recruiters are too busy to learn new tools?",

@@ -55,7 +55,7 @@ export default function CTA() {
               style={{ animation: 'pulse-ring 2.2s ease-out infinite' }}
             />
             <a
-              href="https://calendly.com/YOUR_LINK"
+              href="https://calendly.com/jhasaurav215/30min"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-shimmer relative inline-block rounded-lg bg-accent-blue px-10 py-4 text-base font-semibold text-white transition-all hover:bg-accent-blue/90 hover:scale-105"
