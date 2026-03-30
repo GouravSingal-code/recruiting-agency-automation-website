@@ -3,15 +3,15 @@
 const plans = [
   {
     name: "Starter",
-    tagline: "Try it on one role",
+    tagline: "Test the waters",
     description:
-      "Give us one open role. We source, screen, and deliver 5–8 interview-ready candidates. See the quality before committing to more.",
-    price: "$1,500",
+      "Hand us 1–2 open roles. We source, screen, and deliver 5–8 interview-ready candidates per role. See the quality before scaling up.",
+    price: "$299",
     basis: "per role",
-    delivery: "12–14 business days",
+    delivery: "10–12 business days",
     includes: [
-      "1 active role at a time",
-      "5–8 shortlisted candidates",
+      "1–2 active roles",
+      "5–8 shortlisted candidates per role",
       "Screened & ranked by fit",
       "Scheduling links sent",
       "Interview brief per candidate",
@@ -23,13 +23,13 @@ const plans = [
     name: "Growth",
     tagline: "For teams hiring regularly",
     description:
-      "Up to 5 active roles at a time, running in parallel. Consistent pipeline of interview-ready candidates every month.",
-    price: "$3,500",
-    basis: "per month",
-    delivery: "Ongoing · 5–8 candidates per role",
+      "Commit to 3–10 roles and get a lower per-role rate. Parallel pipelines with priority turnaround and a dedicated account manager.",
+    price: "$249",
+    basis: "per role · 3–10 roles",
+    delivery: "7–10 business days per role",
     includes: [
-      "Up to 5 active roles/month",
-      "25–40 shortlisted candidates",
+      "3–10 active roles",
+      "5–8 shortlisted candidates per role",
       "Priority turnaround",
       "Dedicated account manager",
       "Weekly pipeline report",
@@ -39,14 +39,14 @@ const plans = [
   },
   {
     name: "Scale",
-    tagline: "High-volume or niche hiring",
+    tagline: "Best value for volume hiring",
     description:
-      "Unlimited roles, custom sourcing strategies for hard-to-fill or specialist positions. Pricing based on your hiring volume.",
-    price: "Custom",
-    basis: "talk to us",
-    delivery: "Tailored to your pipeline",
+      "10+ roles at the lowest per-role rate. Custom sourcing strategies for hard-to-fill or specialist positions.",
+    price: "$199",
+    basis: "per role · 10+ roles",
+    delivery: "7–10 business days per role",
     includes: [
-      "Unlimited active roles",
+      "10+ active roles",
       "Specialist & niche sourcing",
       "Custom screening criteria",
       "Direct Slack / Teams access",
@@ -68,11 +68,11 @@ export default function Services() {
           </p>
           <h2 className="text-3xl font-bold text-white md:text-4xl"
             style={{ opacity: 0, animation: 'fade-in-up 0.6s ease 0.2s forwards' }}>
-            One service. Priced by how much you hire.
+            Simple per-role pricing. No monthly lock-in.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-muted"
             style={{ opacity: 0, animation: 'fade-in-up 0.6s ease 0.3s forwards' }}>
-            You tell us who you need. We deliver interview-ready candidates. Pick the plan that matches your hiring volume.
+            You tell us who you need. We deliver interview-ready candidates. The more roles you hire for, the less you pay per role.
           </p>
         </div>
 

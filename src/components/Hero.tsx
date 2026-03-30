@@ -61,7 +61,7 @@ export default function Hero() {
             style={{ animationDelay: '0.4s', opacity: 0, animationFillMode: 'forwards' }}
           >
             <a
-              href="https://calendly.com/YOUR_LINK"
+              href="https://calendly.com/jhasaurav215/30min"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-shimmer rounded-lg bg-accent-blue px-8 py-4 text-base font-semibold text-white transition-all hover:bg-accent-blue/90 hover:scale-105"

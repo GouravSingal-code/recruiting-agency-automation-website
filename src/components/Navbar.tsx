@@ -53,7 +53,7 @@ export default function Navbar() {
             </a>
           ))}
           <a
-            href="https://calendly.com/YOUR_LINK"
+            href="https://calendly.com/jhasaurav215/30min"
             target="_blank"
             rel="noopener noreferrer"
             className="btn-shimmer rounded-lg bg-accent-blue px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-accent-blue/90 hover:scale-105"
@@ -93,7 +93,7 @@ export default function Navbar() {
             </a>
           ))}
           <a
-            href="https://calendly.com/YOUR_LINK"
+            href="https://calendly.com/jhasaurav215/30min"
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setOpen(false)}

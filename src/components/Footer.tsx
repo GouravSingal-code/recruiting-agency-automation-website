@@ -33,7 +33,7 @@ export default function Footer() {
 
         <div className="mt-8 flex flex-col items-center gap-4 border-t border-card-border pt-8 md:flex-row md:justify-between">
           <div className="flex items-center gap-4 text-sm text-muted">
-            <a href="https://calendly.com/YOUR_LINK" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
+            <a href="https://calendly.com/jhasaurav215/30min" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
               Contact Us
             </a>
             <span>·</span>

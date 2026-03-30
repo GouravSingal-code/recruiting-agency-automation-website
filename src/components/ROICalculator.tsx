@@ -15,8 +15,9 @@ export default function ROICalculator() {
   const extraPlacements = Math.round(recruiters * 0.25 * 12); // ~0.25 extra/recruiter/month
   const extraRevenue = extraPlacements * placementFee;
   const totalValue = dollarSavedYear + extraRevenue;
-  const roiQuickWin = Math.round(totalValue / 3500);
-  const paybackMonths = Math.max(1, Math.round((3500 / (totalValue / 12)) * 10) / 10);
+  const costPer10Roles = 249 * 10; // Growth tier, 10 roles
+  const roiQuickWin = Math.round(totalValue / costPer10Roles);
+  const paybackMonths = Math.max(1, Math.round((costPer10Roles / (totalValue / 12)) * 10) / 10);
 
   return (
     <section id="roi-calculator" className="py-20 md:py-28">
@@ -134,7 +135,7 @@ export default function ROICalculator() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="rounded-lg bg-card-bg p-3 text-center">
                   <div className="text-2xl font-bold text-accent-amber">{roiQuickWin}x</div>
-                  <div className="text-xs text-muted">ROI on $3,500 Quick Win</div>
+                  <div className="text-xs text-muted">ROI on 10 roles ($2,490)</div>
                 </div>
                 <div className="rounded-lg bg-card-bg p-3 text-center">
                   <div className="text-2xl font-bold text-accent-green">{paybackMonths} mo</div>
