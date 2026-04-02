@@ -1,7 +1,9 @@
 import React from "react";
 import {
   AbsoluteFill,
+  Audio,
   Sequence,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
   interpolate,
@@ -172,21 +174,21 @@ export const CostComparison: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // ── Frame boundaries ───────────────────────────────────────────────────
-  const TITLE_START = 0;
-  const TITLE_END = 2 * fps; // 60
-  const SPLIT_START = TITLE_END;
-  const SPLIT_SETTLE = 3 * fps; // 90
-  const COST_START = 6 * fps; // 180
-  const COST_END = 9 * fps; // 270
-  const TIME_START = 9 * fps;
-  const TIME_END = 11 * fps; // 330
-  const QUALITY_START = 11 * fps;
-  const QUALITY_END = 13 * fps; // 390
-  const VS_START = 13 * fps; // 390
-  const VS_END = 14.5 * fps; // 435
-  const END_START = Math.round(14.5 * fps); // 435
-  const END_FRAME = 18 * fps; // 540
+  // ── Frame boundaries (tight: audio duration + 0.3-0.5s padding) ────────
+  const TITLE_START = 0; // Scene 1: audio 1.7s
+  const TITLE_END = Math.round(2.1 * fps); // 63
+  const SPLIT_START = TITLE_END; // Scene 2: audio 1.4s
+  const SPLIT_SETTLE = Math.round(TITLE_END + 1.2 * fps); // settle midway
+  const COST_START = Math.round(3.9 * fps); // Scene 3: audio 7.0s
+  const COST_END = Math.round(11.2 * fps); // 336
+  const TIME_START = COST_END; // Scene 4: audio 3.2s
+  const TIME_END = Math.round(14.7 * fps); // 441
+  const QUALITY_START = TIME_END; // Scene 5: audio 8.7s
+  const QUALITY_END = Math.round(QUALITY_START + 9.1 * fps); // audio + 0.4s
+  const VS_START = QUALITY_END; // Scene 6: audio 1.1s
+  const VS_END = Math.round(VS_START + 1.5 * fps);
+  const END_START = VS_END; // Scene 7: audio 2.6s
+  const END_FRAME = Math.round(END_START + 3.0 * fps);
 
   // ── Title animation (Scene 1: 0-2s) ────────────────────────────────────
   const titleY = interpolate(frame, [TITLE_START, TITLE_START + 15], [80, 0], {
@@ -330,6 +332,29 @@ export const CostComparison: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: BG }}>
+      {/* Per-scene narration audio */}
+      <Sequence from={TITLE_START} durationInFrames={TITLE_END - TITLE_START}>
+        <Audio src={staticFile("voice/video4-scene1.mp3")} />
+      </Sequence>
+      <Sequence from={SPLIT_START} durationInFrames={COST_START - SPLIT_START}>
+        <Audio src={staticFile("voice/video4-scene2.mp3")} />
+      </Sequence>
+      <Sequence from={COST_START} durationInFrames={COST_END - COST_START}>
+        <Audio src={staticFile("voice/video4-scene3.mp3")} />
+      </Sequence>
+      <Sequence from={TIME_START} durationInFrames={TIME_END - TIME_START}>
+        <Audio src={staticFile("voice/video4-scene4.mp3")} />
+      </Sequence>
+      <Sequence from={QUALITY_START} durationInFrames={QUALITY_END - QUALITY_START}>
+        <Audio src={staticFile("voice/video4-scene5.mp3")} />
+      </Sequence>
+      <Sequence from={VS_START} durationInFrames={VS_END - VS_START}>
+        <Audio src={staticFile("voice/video4-scene6.mp3")} />
+      </Sequence>
+      <Sequence from={END_START} durationInFrames={END_FRAME - END_START}>
+        <Audio src={staticFile("voice/video4-scene7.mp3")} />
+      </Sequence>
+
       {/* ─── Scene 1: Title ───────────────────────────────────────────── */}
       <Sequence from={TITLE_START} durationInFrames={TITLE_END}>
         <AbsoluteFill
@@ -435,7 +460,7 @@ export const CostComparison: React.FC = () => {
                   <DollarCounter
                     value={tradCost}
                     color={RED}
-                    label="per hire"
+                    label="contract fee"
                     fontSize={110}
                   />
                 </div>
@@ -768,7 +793,7 @@ export const CostComparison: React.FC = () => {
                 padding: "0 50px",
               }}
             >
-              Same result.
+              Better results.
               <br />
               <span style={{ color: GREEN }}>Fraction of the cost.</span>
             </div>

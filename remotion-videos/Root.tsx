@@ -38,7 +38,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="CostComparison"
         component={CostComparison}
-        durationInFrames={18 * FPS} // ~18 seconds
+        durationInFrames={28 * FPS} // ~28 seconds
         fps={FPS}
         width={1080}
         height={1920}
