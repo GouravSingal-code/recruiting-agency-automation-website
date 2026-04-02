@@ -1,7 +1,9 @@
 import React from "react";
 import {
   AbsoluteFill,
+  Audio,
   Sequence,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
   interpolate,
@@ -1339,42 +1341,76 @@ const PipelineProgress: React.FC = () => {
   );
 };
 
+// ─── Frame boundaries (matched to Jessica audio + ~0.4s padding) ────────────
+const FPS = 30;
+const S1 = 0;                          // audio 6.3s
+const S2 = Math.round(6.7 * FPS);      // 201
+const S3 = Math.round(13.3 * FPS);     // 399
+const S4 = Math.round(19.0 * FPS);     // 570
+const S5 = Math.round(24.6 * FPS);     // 738
+const S6 = Math.round(29.6 * FPS);     // 888
+const S7 = Math.round(34.8 * FPS);     // 1044
+const S_END = Math.round(39.9 * FPS);  // 1197
+
 // ─── Main Composition ────────────────────────────────────────────────────────
 export const JDToShortlist: React.FC = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: BG }}>
-      {/* Scene 1: JD Card Drop — 0-3s (frames 0-90) */}
-      <Sequence from={0} durationInFrames={90}>
+      {/* Per-scene narration audio */}
+      <Sequence from={S1} durationInFrames={S2 - S1}>
+        <Audio src={staticFile("voice/video3-scene1.mp3")} />
+      </Sequence>
+      <Sequence from={S2} durationInFrames={S3 - S2}>
+        <Audio src={staticFile("voice/video3-scene2.mp3")} />
+      </Sequence>
+      <Sequence from={S3} durationInFrames={S4 - S3}>
+        <Audio src={staticFile("voice/video3-scene3.mp3")} />
+      </Sequence>
+      <Sequence from={S4} durationInFrames={S5 - S4}>
+        <Audio src={staticFile("voice/video3-scene4.mp3")} />
+      </Sequence>
+      <Sequence from={S5} durationInFrames={S6 - S5}>
+        <Audio src={staticFile("voice/video3-scene5.mp3")} />
+      </Sequence>
+      <Sequence from={S6} durationInFrames={S7 - S6}>
+        <Audio src={staticFile("voice/video3-scene6.mp3")} />
+      </Sequence>
+      <Sequence from={S7} durationInFrames={S_END - S7}>
+        <Audio src={staticFile("voice/video3-scene7.mp3")} />
+      </Sequence>
+
+      {/* Scene 1: JD Card Drop */}
+      <Sequence from={S1} durationInFrames={S2 - S1}>
         <Scene1_JDCard />
       </Sequence>
 
-      {/* Scene 2: Sourcing Agent — 3-7s (frames 90-210) */}
-      <Sequence from={90} durationInFrames={120}>
+      {/* Scene 2: Sourcing Agent */}
+      <Sequence from={S2} durationInFrames={S3 - S2}>
         <Scene2_Sourcing />
       </Sequence>
 
-      {/* Scene 3: Outreach Agent — 7-10s (frames 210-300) */}
-      <Sequence from={210} durationInFrames={90}>
+      {/* Scene 3: Outreach Agent */}
+      <Sequence from={S3} durationInFrames={S4 - S3}>
         <Scene3_Outreach />
       </Sequence>
 
-      {/* Scene 4: AI Voice Screening — 10-14s (frames 300-420) */}
-      <Sequence from={300} durationInFrames={120}>
+      {/* Scene 4: AI Voice Screening */}
+      <Sequence from={S4} durationInFrames={S5 - S4}>
         <Scene4_Screening />
       </Sequence>
 
-      {/* Scene 5: Your Shortlist — 14-17s (frames 420-510) */}
-      <Sequence from={420} durationInFrames={90}>
+      {/* Scene 5: Your Shortlist */}
+      <Sequence from={S5} durationInFrames={S6 - S5}>
         <Scene5_Shortlist />
       </Sequence>
 
-      {/* Scene 6: Notification — 17-19s (frames 510-570) */}
-      <Sequence from={510} durationInFrames={60}>
+      {/* Scene 6: Notification */}
+      <Sequence from={S6} durationInFrames={S7 - S6}>
         <Scene6_Notification />
       </Sequence>
 
-      {/* Scene 7: End Screen — 19-23s (frames 570-690) */}
-      <Sequence from={570} durationInFrames={120}>
+      {/* Scene 7: End Screen */}
+      <Sequence from={S7} durationInFrames={S_END - S7}>
         <Scene7_EndScreen />
       </Sequence>
 

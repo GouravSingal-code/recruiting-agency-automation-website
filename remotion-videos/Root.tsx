@@ -31,7 +31,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="JDToShortlist"
         component={JDToShortlist}
-        durationInFrames={23 * FPS} // ~23 seconds
+        durationInFrames={40 * FPS} // ~40 seconds
         fps={FPS}
         width={1080}
         height={1920}
