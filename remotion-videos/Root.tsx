@@ -15,7 +15,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="TheProblem"
         component={TheProblem}
-        durationInFrames={18 * FPS} // ~18 seconds
+        durationInFrames={33 * FPS} // ~33 seconds
         fps={FPS}
         width={1080}
         height={1920} // 9:16 vertical for social

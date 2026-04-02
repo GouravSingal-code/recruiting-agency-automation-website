@@ -1,7 +1,9 @@
 import React from "react";
 import {
   AbsoluteFill,
+  Audio,
   Sequence,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
   interpolate,
@@ -893,38 +895,68 @@ const EndScreen: React.FC = () => {
   );
 };
 
+// ── Frame boundaries (matched to Jessica audio + ~0.4s padding) ───────────────
+const FPS = 30;
+const S1 = 0;                          // audio 3.7s
+const S2 = Math.round(4.1 * FPS);      // 123
+const S3 = Math.round(7.5 * FPS);      // 225
+const S4 = Math.round(15.7 * FPS);     // 471
+const S5 = Math.round(22.0 * FPS);     // 660
+const S6 = Math.round(24.8 * FPS);     // 744
+const S_END = Math.round(32.4 * FPS);  // 972 (audio 7.2s + 0.4s padding)
+
 // ── Main Composition ───────────────────────────────────────────────────────────
 
 export const TheProblem: React.FC = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: BG }}>
-      {/* Scene 1: Resume flood (0-3s) */}
-      <Sequence from={0} durationInFrames={90}>
+      {/* Per-scene narration audio */}
+      <Sequence from={S1} durationInFrames={S2 - S1}>
+        <Audio src={staticFile("voice/video1-scene1.mp3")} />
+      </Sequence>
+      <Sequence from={S2} durationInFrames={S3 - S2}>
+        <Audio src={staticFile("voice/video1-scene2.mp3")} />
+      </Sequence>
+      <Sequence from={S3} durationInFrames={S4 - S3}>
+        <Audio src={staticFile("voice/video1-scene3.mp3")} />
+      </Sequence>
+      <Sequence from={S4} durationInFrames={S5 - S4}>
+        <Audio src={staticFile("voice/video1-scene4.mp3")} />
+      </Sequence>
+      <Sequence from={S5} durationInFrames={S6 - S5}>
+        <Audio src={staticFile("voice/video1-scene5.mp3")} />
+      </Sequence>
+      <Sequence from={S6} durationInFrames={S_END - S6}>
+        <Audio src={staticFile("voice/video1-scene6.mp3")} />
+      </Sequence>
+
+      {/* Scene 1: Resume flood */}
+      <Sequence from={S1} durationInFrames={S2 - S1}>
         <ResumeFlood />
       </Sequence>
 
-      {/* Scene 2: Calendar overwhelm (3-6s) */}
-      <Sequence from={90} durationInFrames={90}>
+      {/* Scene 2: Calendar overwhelm */}
+      <Sequence from={S2} durationInFrames={S3 - S2}>
         <CalendarOverwhelm />
       </Sequence>
 
-      {/* Scene 3: Rejected candidates (6-9s) */}
-      <Sequence from={180} durationInFrames={90}>
+      {/* Scene 3: Rejected candidates */}
+      <Sequence from={S3} durationInFrames={S4 - S3}>
         <RejectedCandidates />
       </Sequence>
 
-      {/* Scene 4: Founder overwhelm (9-12s) */}
-      <Sequence from={270} durationInFrames={90}>
+      {/* Scene 4: Founder overwhelm */}
+      <Sequence from={S4} durationInFrames={S5 - S4}>
         <FounderOverwhelm />
       </Sequence>
 
-      {/* Scene 5: "Still no hire" (12-14s) */}
-      <Sequence from={360} durationInFrames={60}>
+      {/* Scene 5: "Still no hire" */}
+      <Sequence from={S5} durationInFrames={S6 - S5}>
         <StillNoHire />
       </Sequence>
 
-      {/* Scene 6: End screen / CTA (14-18s) */}
-      <Sequence from={420} durationInFrames={120}>
+      {/* Scene 6: End screen / CTA */}
+      <Sequence from={S6} durationInFrames={S_END - S6}>
         <EndScreen />
       </Sequence>
     </AbsoluteFill>
