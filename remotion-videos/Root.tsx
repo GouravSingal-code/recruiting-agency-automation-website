@@ -5,6 +5,7 @@ import { AIScreeningCall } from "./Video2-AIScreeningCall/AIScreeningCall";
 import { JDToShortlist } from "./Video3-JDToShortlist/JDToShortlist";
 import { CostComparison } from "./Video4-CostComparison/CostComparison";
 import { FounderHiringReality } from "./Video5-FounderHiringReality/FounderHiringReality";
+import { AIInterview } from "./Video6-AIInterview/AIInterview";
 
 const FPS = 30;
 
@@ -22,7 +23,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="AIScreeningCall"
         component={AIScreeningCall}
-        durationInFrames={23 * FPS} // ~23 seconds
+        durationInFrames={45 * FPS} // ~45 seconds
         fps={FPS}
         width={1080}
         height={1920}
@@ -47,6 +48,14 @@ export const RemotionRoot: React.FC = () => {
         id="FounderHiringReality"
         component={FounderHiringReality}
         durationInFrames={50 * FPS} // ~50 seconds
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="AIInterview"
+        component={AIInterview}
+        durationInFrames={2133}
         fps={FPS}
         width={1080}
         height={1920}

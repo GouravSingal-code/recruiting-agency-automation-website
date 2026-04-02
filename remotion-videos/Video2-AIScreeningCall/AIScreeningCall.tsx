@@ -1,7 +1,9 @@
 import React from "react";
 import {
   AbsoluteFill,
+  Audio,
   Sequence,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
   interpolate,
@@ -1176,42 +1178,76 @@ const EndScreen: React.FC = () => {
   );
 };
 
+// ─── Frame boundaries (matched to Jessica audio + ~0.4s padding) ──
+const FPS = 30;
+const S1 = 0;                          // audio 5.8s
+const S2 = Math.round(6.2 * FPS);      // 186  audio 5.3s
+const S3 = Math.round(11.8 * FPS);     // 354  audio 5.1s
+const S4 = Math.round(17.2 * FPS);     // 516  audio 6.5s
+const S5 = Math.round(24.0 * FPS);     // 720  audio 8.8s
+const S6 = Math.round(33.2 * FPS);     // 996  audio 5.7s
+const S7 = Math.round(39.2 * FPS);     // 1176 audio 5.1s
+const S_END = Math.round(44.7 * FPS);  // 1341
+
 // ─── Main Composition ────────────────────────────────────────────
 export const AIScreeningCall: React.FC = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: BG }}>
-      {/* Scene 1: Phone Ringing (0-3s) */}
-      <Sequence from={0} durationInFrames={90}>
+      {/* Per-scene narration audio */}
+      <Sequence from={S1} durationInFrames={S2 - S1}>
+        <Audio src={staticFile("voice/video2-scene1.mp3")} />
+      </Sequence>
+      <Sequence from={S2} durationInFrames={S3 - S2}>
+        <Audio src={staticFile("voice/video2-scene2.mp3")} />
+      </Sequence>
+      <Sequence from={S3} durationInFrames={S4 - S3}>
+        <Audio src={staticFile("voice/video2-scene3.mp3")} />
+      </Sequence>
+      <Sequence from={S4} durationInFrames={S5 - S4}>
+        <Audio src={staticFile("voice/video2-scene4.mp3")} />
+      </Sequence>
+      <Sequence from={S5} durationInFrames={S6 - S5}>
+        <Audio src={staticFile("voice/video2-scene5.mp3")} />
+      </Sequence>
+      <Sequence from={S6} durationInFrames={S7 - S6}>
+        <Audio src={staticFile("voice/video2-scene6.mp3")} />
+      </Sequence>
+      <Sequence from={S7} durationInFrames={S_END - S7}>
+        <Audio src={staticFile("voice/video2-scene7.mp3")} />
+      </Sequence>
+
+      {/* Scene 1: Phone Ringing */}
+      <Sequence from={S1} durationInFrames={S2 - S1}>
         <PhoneRinging />
       </Sequence>
 
-      {/* Scene 2: Call Connected + Waveform (3-7s) */}
-      <Sequence from={90} durationInFrames={120}>
+      {/* Scene 2: Call Connected + Waveform */}
+      <Sequence from={S2} durationInFrames={S3 - S2}>
         <CallConnected />
       </Sequence>
 
-      {/* Scene 3: Identity Verification (7-10s) */}
-      <Sequence from={210} durationInFrames={90}>
+      {/* Scene 3: Identity Verification */}
+      <Sequence from={S3} durationInFrames={S4 - S3}>
         <IdentityVerification />
       </Sequence>
 
-      {/* Scene 4: Technical Screening (10-14s) */}
-      <Sequence from={300} durationInFrames={120}>
+      {/* Scene 4: Technical Screening */}
+      <Sequence from={S4} durationInFrames={S5 - S4}>
         <TechnicalScreening />
       </Sequence>
 
-      {/* Scene 5: Scoring Dashboard (14-17s) */}
-      <Sequence from={420} durationInFrames={90}>
+      {/* Scene 5: Scoring Dashboard */}
+      <Sequence from={S5} durationInFrames={S6 - S5}>
         <ScoringDashboard />
       </Sequence>
 
-      {/* Scene 6: Rapid Montage (17-19s) */}
-      <Sequence from={510} durationInFrames={60}>
+      {/* Scene 6: Rapid Montage */}
+      <Sequence from={S6} durationInFrames={S7 - S6}>
         <RapidMontage />
       </Sequence>
 
-      {/* Scene 7: End Screen (19-23s) */}
-      <Sequence from={570} durationInFrames={120}>
+      {/* Scene 7: End Screen */}
+      <Sequence from={S7} durationInFrames={S_END - S7}>
         <EndScreen />
       </Sequence>
     </AbsoluteFill>
