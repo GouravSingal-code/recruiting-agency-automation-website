@@ -22,7 +22,7 @@ Daily LinkedIn outreach workflow using the `dev-browser` skill. Three modes:
 
 ## Product Details
 
-- **Product**: Shortlisted.ai — AI recruiting for startups (50-200 employees)
+- **Product**: Shortlisted.ai — AI recruiting for European startups and companies (<200 employees)
 - **Demo**: shortlistedai.vercel.app
 - **Calendly**: calendly.com/jhasaurav215/30min
 - **Value prop**: Drop a role, get 5-8 interview-ready candidates in 10 days. AI sources, screens (including live voice interviews), and delivers pre-vetted candidates.
@@ -55,8 +55,9 @@ No pressure — just thought it might be useful!
 - **Weekly limit**: 100 connections/week (rolling 7 days)
 - STOP immediately if you see any CAPTCHA, security challenge, or "invitation limit" warning
 - Never connect with anyone in India
-- Never connect with engineers, developers, designers, analysts, interns, recruiters, consultants, sales, or marketing roles
-- Only connect with leadership: founder, CEO, CTO, COO, VP, director, head of, chief, president
+- Target any decision maker: founder, CEO, CTO, COO, VP, director, head of, chief, president, head of engineering, head of people, HR head, hiring manager, engineering manager, etc.
+- Target audience is European startups or companies with fewer than 200 employees — this is a hard rule, skip larger companies
+- Skip interns, junior roles, and individual contributors with no hiring influence
 
 ## Central Google Sheet
 
